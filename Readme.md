@@ -1,7 +1,7 @@
 # Личный проект «Большое путешествие» [![Build status][travis-image]][travis-url]
 
 * Студент: [Mikhail Plokhov](https://up.htmlacademy.ru/ecmascript/12/user/801117).
-* Наставник: `Неизвестно`.
+* Наставник: `Без наставника`.
 
 ---
 
