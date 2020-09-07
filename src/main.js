@@ -4,20 +4,22 @@ import {createTripFilterTemplate} from "./view/filter.js";
 import {createTripSortTemplate} from "./view/sort.js";
 import {createTripDaysListTemplate} from "./view/days-list.js";
 import {createTripDayTemplate} from "./view/day.js";
-import {createTripPointTemplate} from "./view/trip-point.js";
-import {createNewTripPointTemplate} from "./view/new-trip-point.js";
-import {createTripPointDetailsTemplate} from "./view/point-details.js";
-import {createTripPointCostTemplate} from "./view/point-cost.js";
-import {createTripPointInfoTemplate} from "./view/point-info.js";
+import {createNewTripPointTemplate} from "./view/new-trip-point/new-trip-point.js";
 
-const TRIP_POINT_COUNT = 13;
+import {generateItinerary} from "./mock/itinerary.js";
 
-const render = (container, template, place) => {
-  container.insertAdjacentHTML(place, template);
-};
+import {generateTripPoint} from "./mock/trip-point.js";
+
+import {sortTripPointsByDays, render} from "./utils.js";
+
+const TRIP_POINT_COUNT = 16;
+
+const tripPoints = new Array(TRIP_POINT_COUNT).fill(``).map(generateTripPoint);
+const itinerary = generateItinerary(tripPoints);
+const tripDays = sortTripPointsByDays(tripPoints.slice(1));
 
 const tripMainElement = document.querySelector(`.trip-main`);
-render(tripMainElement, crateTripInfoTemplate(), `afterbegin`);
+render(tripMainElement, crateTripInfoTemplate(itinerary), `afterbegin`);
 
 const tripControlsElement = tripMainElement.querySelector(`.trip-controls`);
 const tripMenuHeaderElement = tripControlsElement.querySelector(`h2:first-child`);
@@ -28,23 +30,9 @@ render(tripFilterHeaderElement, createTripFilterTemplate(), `afterend`);
 
 const tripEventsElement = document.querySelector(`.trip-events`);
 render(tripEventsElement, createTripSortTemplate(), `beforeend`);
-render(tripEventsElement, createNewTripPointTemplate(), `beforeend`);
+render(tripEventsElement, createNewTripPointTemplate(tripPoints[0]), `beforeend`);
 render(tripEventsElement, createTripDaysListTemplate(), `beforeend`);
-
-// Отрисовка добавления новой точки путешествия
-const tripEventEditElement = tripEventsElement.querySelector(`.event--edit`);
-render(tripEventEditElement, createTripPointDetailsTemplate(), `beforeend`);
-
-const tripEventDetailsElement = tripEventEditElement.querySelector(`.event__details`);
-render(tripEventDetailsElement, createTripPointCostTemplate(), `beforeend`);
-render(tripEventDetailsElement, createTripPointInfoTemplate(), `beforeend`);
 
 // Отрисовка точек путешествия
 const tripDaysListElement = tripEventsElement.querySelector(`.trip-days`);
-render(tripDaysListElement, createTripDayTemplate(), `beforeend`);
-
-const tripPointsListElement = tripDaysListElement.querySelector(`.trip-events__list`);
-
-for (let i = 0; i < TRIP_POINT_COUNT; i++) {
-  render(tripPointsListElement, createTripPointTemplate(), `beforeend`);
-}
+render(tripDaysListElement, createTripDayTemplate(tripDays), `beforeend`);
