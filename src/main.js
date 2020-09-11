@@ -18,19 +18,6 @@ const TRIP_POINT_COUNT = 14;
 const tripPoints = new Array(TRIP_POINT_COUNT).fill(``).map(generateTripPoint);
 const itinerary = generateItinerary(tripPoints);
 
-const tripMainElement = document.querySelector(`.trip-main`);
-render(tripMainElement, new SiteInfo(itinerary).getElement(), RenderPosition.AFTERBEGIN);
-
-const tripControlsElement = tripMainElement.querySelector(`.trip-controls`);
-const tripMenuHeaderElement = tripControlsElement.querySelector(`h2:first-child`);
-const tripFilterHeaderElement = tripControlsElement.querySelector(`h2:nth-child(2)`);
-
-render(tripMenuHeaderElement, new SiteMenu().getElement(), RenderPosition.AFTEREND);
-render(tripFilterHeaderElement, new Filter().getElement(), RenderPosition.AFTEREND);
-
-const tripEventsElement = document.querySelector(`.trip-events`);
-render(tripEventsElement, new Sort().getElement(), RenderPosition.BEFOREEND);
-
 const renderTripPoint = (tripPointListElement, tripPoint) => {
   const tripPointComponent = new TripPoint(tripPoint);
   const newTripPointComponent = new NewTripPoint(tripPoint);
@@ -82,5 +69,18 @@ const renderTripDays = (tripDaysContainer, points) => {
       });
   });
 };
+
+const tripMainElement = document.querySelector(`.trip-main`);
+render(tripMainElement, new SiteInfo(itinerary).getElement(), RenderPosition.AFTERBEGIN);
+
+const tripControlsElement = tripMainElement.querySelector(`.trip-controls`);
+const tripMenuHeaderElement = tripControlsElement.querySelector(`h2:first-child`);
+const tripFilterHeaderElement = tripControlsElement.querySelector(`h2:nth-child(2)`);
+
+render(tripMenuHeaderElement, new SiteMenu().getElement(), RenderPosition.AFTEREND);
+render(tripFilterHeaderElement, new Filter().getElement(), RenderPosition.AFTEREND);
+
+const tripEventsElement = document.querySelector(`.trip-events`);
+render(tripEventsElement, new Sort().getElement(), RenderPosition.BEFOREEND);
 
 renderTripDays(tripEventsElement, tripPoints);
