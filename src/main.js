@@ -1,6 +1,7 @@
 import SiteInfo from "./view/site-info.js";
 import SiteMenu from "./view/site-menu.js";
 import Filter from "./view/filter.js";
+import NoTripPoints from "./view/no-points.js";
 import Sort from "./view/sort.js";
 import TripDaysList from "./view/trip-days-list.js";
 
@@ -13,7 +14,7 @@ import NewTripPoint from "./view/new-trip-point/new-trip-point.js";
 import TripDay from "./view/trip-day.js";
 import TripPointsList from "./view/trip-points-list.js";
 
-const TRIP_POINT_COUNT = 14;
+const TRIP_POINT_COUNT = 15;
 
 const tripPoints = new Array(TRIP_POINT_COUNT).fill(``).map(generateTripPoint);
 const itinerary = generateItinerary(tripPoints);
@@ -32,11 +33,20 @@ const renderTripPoint = (tripPointListElement, tripPoint) => {
       .replaceChild(tripPointComponent.getElement(), newTripPointComponent.getElement());
   };
 
+  const onEscKeyDown = (evt) => {
+    if (evt.key === `Escape` || evt.key === `Esc`) {
+      evt.preventDefault();
+      replaceFormToPoint();
+      document.removeEventListener(`keydown`, onEscKeyDown);
+    }
+  };
+
   tripPointComponent
     .getElement()
     .querySelector(`.event__rollup-btn`)
     .addEventListener(`click`, () => {
       replacePointToForm();
+      document.addEventListener(`keydown`, onEscKeyDown);
     });
 
   newTripPointComponent
@@ -44,6 +54,7 @@ const renderTripPoint = (tripPointListElement, tripPoint) => {
     .addEventListener(`click`, (evt) => {
       evt.preventDefault();
       replaceFormToPoint();
+      document.removeEventListener(`keydown`, onEscKeyDown);
     });
 
   render(tripPointListElement, tripPointComponent.getElement(), RenderPosition.BEFOREEND);
@@ -70,6 +81,15 @@ const renderTripDays = (tripDaysContainer, points) => {
   });
 };
 
+const renderEvents = (enetsContainer, events) => {
+  if (events.length === 0) {
+    render(enetsContainer, new NoTripPoints().getElement(), RenderPosition.BEFOREEND);
+  } else {
+    render(enetsContainer, new Sort().getElement(), RenderPosition.BEFOREEND);
+    renderTripDays(enetsContainer, events);
+  }
+};
+
 const tripMainElement = document.querySelector(`.trip-main`);
 render(tripMainElement, new SiteInfo(itinerary).getElement(), RenderPosition.AFTERBEGIN);
 
@@ -81,6 +101,4 @@ render(tripMenuHeaderElement, new SiteMenu().getElement(), RenderPosition.AFTERE
 render(tripFilterHeaderElement, new Filter().getElement(), RenderPosition.AFTEREND);
 
 const tripEventsElement = document.querySelector(`.trip-events`);
-render(tripEventsElement, new Sort().getElement(), RenderPosition.BEFOREEND);
-
-renderTripDays(tripEventsElement, tripPoints);
+renderEvents(tripEventsElement, tripPoints);

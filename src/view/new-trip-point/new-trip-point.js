@@ -65,6 +65,10 @@ export default class NewTripPoint {
       options,
     } = this._tripPoint;
 
+    const tripPointTitle = TRANSFER_TYPES.includes(type, 0)
+      ? `${type} to`
+      : `${type} in`;
+
     return (
       `<form class="trip-events__item  event  event--edit" action="#" method="post">
         <header class="event__header">
@@ -92,7 +96,7 @@ export default class NewTripPoint {
 
           <div class="event__field-group  event__field-group--destination">
             <label class="event__label  event__type-output" for="event-destination-1">
-              ${type} to
+              ${tripPointTitle} ${destination.name}
             </label>
             <input class="event__input  event__input--destination"
               id="event-destination-1"

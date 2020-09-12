@@ -12,16 +12,19 @@ const createTotalCostItinerary = (tripPoints) => {
 
 export const generateItinerary = (tripPoints) => {
   const tripPointsSortInTime = sortTripPointsInTime(tripPoints);
+  let itinerary = {};
 
-  const itinerary = {
-    cities: Array.from(new Set(tripPointsSortInTime
-      .map((tripPoint) => {
-        return tripPoint.destination.name;
-      }))),
-    dateStart: tripPointsSortInTime[0].dateStart,
-    dateFinish: tripPointsSortInTime[tripPointsSortInTime.length - 1].dateStart,
-    totalCost: createTotalCostItinerary(tripPoints),
-  };
+  if (tripPoints.length > 0) {
+    itinerary = {
+      cities: Array.from(new Set(tripPointsSortInTime
+        .map((tripPoint) => {
+          return tripPoint.destination.name;
+        }))),
+      dateStart: tripPointsSortInTime[0].dateStart,
+      dateFinish: tripPointsSortInTime[tripPointsSortInTime.length - 1].dateStart,
+      totalCost: createTotalCostItinerary(tripPoints),
+    };
+  }
 
   return itinerary;
 };
