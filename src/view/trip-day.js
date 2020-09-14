@@ -1,11 +1,10 @@
-import {createElement} from "../utils.js";
+import Abstract from "./abstract.js";
 
-export default class TripDay {
+export default class TripDayView extends Abstract {
   constructor(tripDay, dayNumber) {
+    super();
     this._tripDay = tripDay;
     this._dayNumber = dayNumber;
-
-    this._element = null;
   }
 
   getTemplate() {
@@ -21,17 +20,5 @@ export default class TripDay {
         </div>
       </li>`
     );
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }

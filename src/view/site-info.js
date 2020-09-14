@@ -1,9 +1,10 @@
-import {createElement, createShortDateTemplate} from "../utils.js";
+import Abstract from "./abstract.js";
+import {createShortDateTemplate} from "../utils/trip.js";
 
-export default class SiteInfo {
+export default class SiteInfoView extends Abstract {
   constructor(itinerary) {
+    super();
     this._itinerary = itinerary;
-    this._element = null;
   }
 
   getTemplate() {
@@ -45,17 +46,5 @@ export default class SiteInfo {
         </section>`
       );
     }
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }

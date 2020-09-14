@@ -1,18 +1,20 @@
-import SiteInfo from "./view/site-info.js";
-import SiteMenu from "./view/site-menu.js";
-import Filter from "./view/filter.js";
-import NoTripPoints from "./view/no-points.js";
-import Sort from "./view/sort.js";
-import TripDaysList from "./view/trip-days-list.js";
+import SiteInfoView from "./view/site-info.js";
+import SiteMenuView from "./view/site-menu.js";
+import FilterView from "./view/filter.js";
+import NoTripPointsView from "./view/no-points.js";
+import SortView from "./view/sort.js";
+import TripDaysListView from "./view/trip-days-list.js";
 
 import {generateItinerary} from "./mock/itinerary.js";
 import {generateTripPoint} from "./mock/trip-point.js";
-import {sortTripPointsInTime, sortTripPointsByDays, render, RenderPosition} from "./utils.js";
 
-import TripPoint from "./view/trip-point/trip-point.js";
-import NewTripPoint from "./view/new-trip-point/new-trip-point.js";
-import TripDay from "./view/trip-day.js";
-import TripPointsList from "./view/trip-points-list.js";
+import {sortTripPointsInTime, sortTripPointsByDays} from "./utils/trip.js";
+import {RenderPosition, render, replace} from "./utils/render.js";
+
+import TripPointView from "./view/trip-point/trip-point.js";
+import NewTripPointView from "./view/new-trip-point/new-trip-point.js";
+import TripDayView from "./view/trip-day.js";
+import TripPointsListView from "./view/trip-points-list.js";
 
 const TRIP_POINT_COUNT = 15;
 
@@ -20,59 +22,51 @@ const tripPoints = new Array(TRIP_POINT_COUNT).fill(``).map(generateTripPoint);
 const itinerary = generateItinerary(tripPoints);
 
 const renderTripPoint = (tripPointListElement, tripPoint) => {
-  const tripPointComponent = new TripPoint(tripPoint);
-  const newTripPointComponent = new NewTripPoint(tripPoint);
+  const tripPointComponent = new TripPointView(tripPoint);
+  const newTripPointComponent = new NewTripPointView(tripPoint);
 
   const replacePointToForm = () => {
-    tripPointListElement
-      .replaceChild(newTripPointComponent.getElement(), tripPointComponent.getElement());
+    replace(newTripPointComponent, tripPointComponent);
   };
 
   const replaceFormToPoint = () => {
-    tripPointListElement
-      .replaceChild(tripPointComponent.getElement(), newTripPointComponent.getElement());
+    replace(tripPointComponent, newTripPointComponent);
   };
 
-  const onEscKeyDown = (evt) => {
+  const escKeyDownHandler = (evt) => {
     if (evt.key === `Escape` || evt.key === `Esc`) {
       evt.preventDefault();
       replaceFormToPoint();
-      document.removeEventListener(`keydown`, onEscKeyDown);
+      document.removeEventListener(`keydown`, escKeyDownHandler);
     }
   };
 
-  tripPointComponent
-    .getElement()
-    .querySelector(`.event__rollup-btn`)
-    .addEventListener(`click`, () => {
-      replacePointToForm();
-      document.addEventListener(`keydown`, onEscKeyDown);
-    });
+  tripPointComponent.setRollupBtnClickHandler(() => {
+    replacePointToForm();
+    document.addEventListener(`keydown`, escKeyDownHandler);
+  });
 
-  newTripPointComponent
-    .getElement()
-    .addEventListener(`click`, (evt) => {
-      evt.preventDefault();
-      replaceFormToPoint();
-      document.removeEventListener(`keydown`, onEscKeyDown);
-    });
+  newTripPointComponent.setFormSubmitHandler(() => {
+    replaceFormToPoint();
+    document.removeEventListener(`keydown`, escKeyDownHandler);
+  });
 
-  render(tripPointListElement, tripPointComponent.getElement(), RenderPosition.BEFOREEND);
+  render(tripPointListElement, tripPointComponent, RenderPosition.BEFOREEND);
 };
 
 const renderTripDays = (tripDaysContainer, points) => {
-  const tripDaysListComponent = new TripDaysList();
+  const tripDaysListComponent = new TripDaysListView();
 
   const tripDays = sortTripPointsByDays(points.slice());
 
-  render(tripDaysContainer, tripDaysListComponent.getElement(), RenderPosition.BEFOREEND);
+  render(tripDaysContainer, tripDaysListComponent, RenderPosition.BEFOREEND);
 
   tripDays.forEach((tripDay, index) => {
-    const tripDayComponent = new TripDay(tripDay, index);
-    const tripPointsListComponent = new TripPointsList();
+    const tripDayComponent = new TripDayView(tripDay, index);
+    const tripPointsListComponent = new TripPointsListView();
 
-    render(tripDaysListComponent.getElement(), tripDayComponent.getElement(), RenderPosition.BEFOREEND);
-    render(tripDayComponent.getElement(), tripPointsListComponent.getElement(), RenderPosition.BEFOREEND);
+    render(tripDaysListComponent, tripDayComponent, RenderPosition.BEFOREEND);
+    render(tripDayComponent, tripPointsListComponent, RenderPosition.BEFOREEND);
 
     sortTripPointsInTime(tripDay.tripPoints)
       .forEach((tripPoint) => {
@@ -83,22 +77,22 @@ const renderTripDays = (tripDaysContainer, points) => {
 
 const renderEvents = (enetsContainer, events) => {
   if (events.length === 0) {
-    render(enetsContainer, new NoTripPoints().getElement(), RenderPosition.BEFOREEND);
+    render(enetsContainer, new NoTripPointsView(), RenderPosition.BEFOREEND);
   } else {
-    render(enetsContainer, new Sort().getElement(), RenderPosition.BEFOREEND);
+    render(enetsContainer, new SortView(), RenderPosition.BEFOREEND);
     renderTripDays(enetsContainer, events);
   }
 };
 
 const tripMainElement = document.querySelector(`.trip-main`);
-render(tripMainElement, new SiteInfo(itinerary).getElement(), RenderPosition.AFTERBEGIN);
+render(tripMainElement, new SiteInfoView(itinerary), RenderPosition.AFTERBEGIN);
 
 const tripControlsElement = tripMainElement.querySelector(`.trip-controls`);
 const tripMenuHeaderElement = tripControlsElement.querySelector(`h2:first-child`);
 const tripFilterHeaderElement = tripControlsElement.querySelector(`h2:nth-child(2)`);
 
-render(tripMenuHeaderElement, new SiteMenu().getElement(), RenderPosition.AFTEREND);
-render(tripFilterHeaderElement, new Filter().getElement(), RenderPosition.AFTEREND);
+render(tripMenuHeaderElement, new SiteMenuView(), RenderPosition.AFTEREND);
+render(tripFilterHeaderElement, new FilterView(), RenderPosition.AFTEREND);
 
 const tripEventsElement = document.querySelector(`.trip-events`);
 renderEvents(tripEventsElement, tripPoints);

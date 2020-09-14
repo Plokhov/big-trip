@@ -1,10 +1,15 @@
-import {TRANSFER_TYPES, createElement, humanizeTime, createDurationtTimeTemplate} from "../../utils.js";
-import TripPointOffers from "./point-offers.js";
+import Abstract from "../abstract.js";
 
-export default class TripPoint {
+import TripPointOffers from "./point-offers.js";
+import {TRANSFER_TYPES} from "../../const.js";
+import {humanizeTime, createDurationtTimeTemplate} from "../../utils/trip.js";
+
+export default class TripPointView extends Abstract {
   constructor(tripPoint) {
+    super();
     this._tripPoint = tripPoint;
-    this._element = null;
+
+    this._rollupBtnClickHandler = this._rollupBtnClickHandler.bind(this);
   }
 
   getTemplate() {
@@ -59,15 +64,13 @@ export default class TripPoint {
     );
   }
 
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
+  _rollupBtnClickHandler(evt) {
+    evt.preventDefault();
+    this._callback.rollupBtnClick();
   }
 
-  removeElement() {
-    this._element = null;
+  setRollupBtnClickHandler(callback) {
+    this._callback.rollupBtnClick = callback;
+    this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, this._rollupBtnClickHandler);
   }
 }

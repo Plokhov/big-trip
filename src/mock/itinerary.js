@@ -1,4 +1,4 @@
-import {sortTripPointsInTime} from "../utils.js";
+import {sortTripPointsInTime} from "../utils/trip.js";
 
 const createTotalCostItinerary = (tripPoints) => {
   return tripPoints
