@@ -1,4 +1,5 @@
-import {TRANSFER_TYPES, ACTIVITY_TYPES, getRandomInteger, getRandomArrayElement} from "../utils.js";
+import {TRANSFER_TYPES, ACTIVITY_TYPES} from "../const.js";
+import {getRandomInteger, getRandomArrayElement} from "../utils/common.js";
 
 
 const generateTypeTripPoint = () => {

@@ -1,7 +1,10 @@
-import {TRANSFER_TYPES, ACTIVITY_TYPES, createElement, humanizeDate} from "../../utils.js";
+import Abstract from "../abstract.js";
+
 import TripPointTypeList from "./point-type-list.js";
 import TripPointEditButtons from "./point-edit-buttons.js";
 import TripPointDetails from "./point-details.js";
+import {TRANSFER_TYPES, ACTIVITY_TYPES} from "../../const.js";
+import {humanizeDate} from "../../utils/trip.js";
 
 const BLANK_TRIP_POINT = {
   type: `Bus`,
@@ -49,10 +52,11 @@ const BLANK_TRIP_POINT = {
   },
 };
 
-export default class NewTripPoint {
+export default class TripPointEditView extends Abstract {
   constructor(tripPoint) {
+    super();
     this._tripPoint = tripPoint || BLANK_TRIP_POINT;
-    this._element = null;
+    this._formSubmitHandler = this._formSubmitHandler.bind(this);
   }
 
   getTemplate() {
@@ -158,15 +162,13 @@ export default class NewTripPoint {
     );
   }
 
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
+  _formSubmitHandler(evt) {
+    evt.preventDefault();
+    this._callback.formSubmit();
   }
 
-  removeElement() {
-    this._element = null;
+  setFormSubmitHandler(callback) {
+    this._callback.formSubmit = callback;
+    this.getElement().addEventListener(`submit`, this._formSubmitHandler);
   }
 }
