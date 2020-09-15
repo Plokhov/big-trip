@@ -52,7 +52,7 @@ const BLANK_TRIP_POINT = {
   },
 };
 
-export default class NewTripPointView extends Abstract {
+export default class TripPointEditView extends Abstract {
   constructor(tripPoint) {
     super();
     this._tripPoint = tripPoint || BLANK_TRIP_POINT;
