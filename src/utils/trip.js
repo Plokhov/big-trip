@@ -71,3 +71,14 @@ export const sortTripPointsByDays = (tripPoints) => {
 
   return tripDays;
 };
+
+export const sortTripPointsByPrice = (tripPointA, tripPointB) => {
+  return tripPointB.price - tripPointA.price;
+};
+
+export const sortTripPointsByDuration = (tripPointA, tripPointB) => {
+
+  tripPointA.durationTime = tripPointA.dateFinish.getTime() - tripPointA.dateStart.getTime();
+  tripPointB.durationTime = tripPointB.dateFinish.getTime() - tripPointB.dateStart.getTime();
+  return tripPointB.durationTime - tripPointA.durationTime;
+};
