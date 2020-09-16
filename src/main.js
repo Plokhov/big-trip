@@ -8,7 +8,6 @@ import {generateTripPoint} from "./mock/trip-point.js";
 
 import {RenderPosition, render} from "./utils/render.js";
 
-
 const TRIP_POINT_COUNT = 10;
 
 const tripPoints = new Array(TRIP_POINT_COUNT).fill(``).map(generateTripPoint);
