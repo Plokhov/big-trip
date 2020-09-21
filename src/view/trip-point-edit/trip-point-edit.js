@@ -3,7 +3,7 @@ import Abstract from "../abstract.js";
 import TripPointTypeList from "./point-type-list.js";
 import TripPointEditButtons from "./point-edit-buttons.js";
 import TripPointDetails from "./point-details.js";
-import {TRANSFER_TYPES, ACTIVITY_TYPES} from "../../const.js";
+import {TRANSFER_TYPES, ACTIVITY_TYPES, DESTINATIONS} from "../../const.js";
 import {humanizeDate} from "../../utils/trip.js";
 
 const BLANK_TRIP_POINT = {
@@ -53,9 +53,13 @@ const BLANK_TRIP_POINT = {
 };
 
 export default class TripPointEditView extends Abstract {
-  constructor(tripPoint) {
+  constructor(tripPoint, changeData) {
     super();
+
     this._tripPoint = tripPoint || BLANK_TRIP_POINT;
+    this._changeData = changeData;
+
+    this._favoriteClickHandler = this._favoriteClickHandler.bind(this);
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
   }
 
@@ -72,6 +76,11 @@ export default class TripPointEditView extends Abstract {
     const tripPointTitle = TRANSFER_TYPES.includes(type, 0)
       ? `${type} to`
       : `${type} in`;
+
+    const tripPointDetailsTemplate = ((options !== null) || (destination !== null))
+      ? new TripPointDetails(options, destination).getTemplate()
+      : ``;
+
 
     return (
       `<form class="trip-events__item  event  event--edit" action="#" method="post">
@@ -100,20 +109,17 @@ export default class TripPointEditView extends Abstract {
 
           <div class="event__field-group  event__field-group--destination">
             <label class="event__label  event__type-output" for="event-destination-1">
-              ${tripPointTitle} ${destination.name}
+              ${tripPointTitle}
             </label>
             <input class="event__input  event__input--destination"
               id="event-destination-1"
               type="text"
               name="event-destination"
-              value=""
+              value="${destination ? destination.name : ``}"
               list="destination-list-1"
             >
             <datalist id="destination-list-1">
-              <option value="Amsterdam"></option>
-              <option value="Geneva"></option>
-              <option value="Chamonix"></option>
-              <option value="Saint Petersburg"></option>
+              ${DESTINATIONS.map((it) => `<option value="${it.name}"></option>`).join(``)}
             </datalist>
           </div>
 
@@ -157,14 +163,24 @@ export default class TripPointEditView extends Abstract {
 
           ${new TripPointEditButtons(this._tripPoint).getTemplate()}
         </header>
-        ${new TripPointDetails(options.offers, destination).getTemplate()}
+        ${tripPointDetailsTemplate}
       </form>`
     );
   }
 
+  _favoriteClickHandler(evt) {
+    evt.preventDefault();
+    this._callback.favoriteClick();
+  }
+
   _formSubmitHandler(evt) {
     evt.preventDefault();
-    this._callback.formSubmit();
+    this._callback.formSubmit(this._tripPoint);
+  }
+
+  setFavoriteClickHandler(callback) {
+    this._callback.favoriteClick = callback;
+    this.getElement().querySelector(`.event__favorite-btn`).addEventListener(`click`, this._favoriteClickHandler);
   }
 
   setFormSubmitHandler(callback) {

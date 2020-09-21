@@ -1,5 +1,7 @@
-import {render, RenderPosition, replace} from "../utils/render.js";
+import {render, RenderPosition, remove} from "../utils/render.js";
 import {sortTripPointsInTime, sortTripPointsByDays, sortTripPointsByDuration, sortTripPointsByPrice} from "../utils/trip.js";
+import {updateItem} from "../utils/common.js";
+
 import {SortType} from "../const.js";
 
 import SortView from "../view/sort.js";
@@ -7,18 +9,21 @@ import NoTripPointsView from "../view/no-trip-points.js";
 import TripDaysListView from "../view/trip-days-list.js";
 import TripDayView from "../view/trip-day.js";
 import TripPointsListView from "../view/trip-points-list.js";
-import TripPointView from "../view/trip-point/trip-point.js";
-import TripPointEditView from "../view/trip-point-edit/trip-point-edit.js";
+
+import TripPointPresenter from "./trip-point.js";
 
 export default class Trip {
   constructor(tripEventsContainer) {
     this._tripEventsContainer = tripEventsContainer;
     this._currentSortType = SortType.EVENT;
+    this._tripPointPresenter = {};
+    this._tripDaysComponents = [];
 
     this._sortComponent = new SortView();
     this._noTripPointsComponent = new NoTripPointsView();
     this._tripDaysListComponent = new TripDaysListView();
 
+    this._handleTripPointChange = this._handleTripPointChange.bind(this);
     this._handleSortTypeChange = this._handleSortTypeChange.bind(this);
   }
 
@@ -27,6 +32,12 @@ export default class Trip {
     this._sourcedTripPoints = tripPoints.slice();
 
     this._renderTrip();
+  }
+
+  _handleTripPointChange(updatedPoint) {
+    this._tripPoints = updateItem(this._tripPoints, updatedPoint);
+    this._sourcedTripPoints = updateItem(this._sourcedTripPoints, updatedPoint);
+    this._tripPointPresenter[updatedPoint.id].init(updatedPoint);
   }
 
   _sortTripPoint(sortType) {
@@ -71,36 +82,9 @@ export default class Trip {
   }
 
   _renderTripPoint(tripPointListElement, tripPoint) {
-    const tripPointComponent = new TripPointView(tripPoint);
-    const tripPointEditComponent = new TripPointEditView(tripPoint);
-
-    const replacePointToForm = () => {
-      replace(tripPointEditComponent, tripPointComponent);
-    };
-
-    const replaceFormToPoint = () => {
-      replace(tripPointComponent, tripPointEditComponent);
-    };
-
-    const escKeyDownHandler = (evt) => {
-      if (evt.key === `Escape` || evt.key === `Esc`) {
-        evt.preventDefault();
-        replaceFormToPoint();
-        document.removeEventListener(`keydown`, escKeyDownHandler);
-      }
-    };
-
-    tripPointComponent.setRollupBtnClickHandler(() => {
-      replacePointToForm();
-      document.addEventListener(`keydown`, escKeyDownHandler);
-    });
-
-    tripPointEditComponent.setFormSubmitHandler(() => {
-      replaceFormToPoint();
-      document.removeEventListener(`keydown`, escKeyDownHandler);
-    });
-
-    render(tripPointListElement, tripPointComponent, RenderPosition.BEFOREEND);
+    const tripPointPresenter = new TripPointPresenter(tripPointListElement, this._handleTripPointChange);
+    tripPointPresenter.init(tripPoint);
+    this._tripPointPresenter[tripPoint.id] = tripPointPresenter;
   }
 
   _renderTripPoints(tripPointsContainer, tripPoints) {
@@ -117,21 +101,28 @@ export default class Trip {
     render(tripDaysContainer, tripDayComponent, RenderPosition.BEFOREEND);
     render(tripDayComponent, tripPointsListComponent, RenderPosition.BEFOREEND);
 
+    this._tripDaysComponents.push(tripDayComponent);
+
     if (tripDay) {
       this._renderTripPoints(tripPointsListComponent, sortTripPointsInTime(tripDay.tripPoints));
     }
   }
 
   _clearTripDaysList() {
-    this._tripDaysListComponent.getElement().innerHTML = ``;
+    this._tripDaysComponents
+      .forEach((tripDay) => {
+        remove(tripDay);
+      });
+
+    this._tripDaysComponents = [];
   }
 
   _renderTripDays() {
-    const tripDays = sortTripPointsByDays(this._tripPoints);
+    this._tripDays = sortTripPointsByDays(this._tripPoints);
 
     render(this._tripEventsContainer, this._tripDaysListComponent, RenderPosition.BEFOREEND);
 
-    tripDays
+    this._tripDays
       .forEach((tripDay, index) => {
         this._renderTripDay(this._tripDaysListComponent, tripDay, index);
       });

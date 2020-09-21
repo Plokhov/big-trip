@@ -8,6 +8,22 @@ export default class TripPointsDetails {
   }
 
   getTemplate() {
+    if (!this._offers) {
+      return (
+        `<section class="event__details">
+          ${new TripPointDestination(this._destination).getTemplate()}
+        </section>`
+      );
+    }
+
+    if (!this._destination) {
+      return (
+        `<section class="event__details">
+          ${new TripPointOffers(this._offers).getTemplate()}
+        </section>`
+      );
+    }
+
     return (
       `<section class="event__details">
         ${new TripPointOffers(this._offers).getTemplate()}

@@ -1,5 +1,19 @@
 import {sortTripPointsInTime} from "../utils/trip.js";
 
+const createCityItinerary = (tripPoints) => {
+  const tripPointsSortInTime = sortTripPointsInTime(tripPoints);
+
+  const cityes = Array.from(new Set(tripPointsSortInTime.map((tripPoint) => {
+    if (tripPoint.destination) {
+      return tripPoint.destination.name;
+    }
+
+    return ``;
+  })));
+
+  return cityes;
+};
+
 const createTotalCostItinerary = (tripPoints) => {
   return tripPoints
     .map((tripPoint) => {
@@ -16,10 +30,7 @@ export const generateItinerary = (tripPoints) => {
 
   if (tripPoints.length > 0) {
     itinerary = {
-      cities: Array.from(new Set(tripPointsSortInTime
-        .map((tripPoint) => {
-          return tripPoint.destination.name;
-        }))),
+      cities: createCityItinerary(tripPoints),
       dateStart: tripPointsSortInTime[0].dateStart,
       dateFinish: tripPointsSortInTime[tripPointsSortInTime.length - 1].dateStart,
       totalCost: createTotalCostItinerary(tripPoints),

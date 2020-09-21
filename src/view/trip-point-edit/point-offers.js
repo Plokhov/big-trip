@@ -1,15 +1,21 @@
 export default class TripPointsOffers {
-  constructor(offers) {
-    this._offers = offers;
+  constructor(options) {
+    this._options = options;
   }
 
   getTemplate() {
+    const {offers} = this._options;
+
+    if (offers.length === 0) {
+      return ``;
+    }
+
     return (
       `<section class="event__section  event__section--offers">
         <h3 class="event__section-title  event__section-title--offers">Offers</h3>
 
         <div class="event__available-offers">
-        ${this._offers.map((offer) => {
+        ${offers.map((offer) => {
         return `<div class="event__offer-selector">
               <input
                 class="event__offer-checkbox  visually-hidden"

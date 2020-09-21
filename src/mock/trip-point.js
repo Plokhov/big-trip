@@ -1,6 +1,7 @@
-import {TRANSFER_TYPES, ACTIVITY_TYPES} from "../const.js";
+import {TRANSFER_TYPES, ACTIVITY_TYPES, DESTINATIONS, OPTIONS} from "../const.js";
 import {getRandomInteger, getRandomArrayElement} from "../utils/common.js";
 
+const generateId = () => Date.now() + parseInt(Math.random() * 10000, 10);
 
 const generateTypeTripPoint = () => {
   const tripPointTypes = new Array(0).concat(TRANSFER_TYPES, ACTIVITY_TYPES);
@@ -12,8 +13,8 @@ const generatePhotoTripPoint = () => {
   return `http://picsum.photos/248/152?r=${Math.random()}`;
 };
 
-const generateDestinationTripPoint = () => {
-  const cities = [`Amsterdam`, `Milan`, `Madrid`, `Praga`, `New-York`, `Rio de Janeiro`];
+export const generateTripPointDestinations = () => {
+  const cities = [`Amsterdam`, `Geneva`, `Chamonix`, `Saint Petersburg`];
   const infoCities = [`Lorem ipsum dolor sit amet, consectetur adipiscing elit.`,
     `Cras aliquet varius magna, non porta ligula feugiat eget.`,
     `Fusce tristique felis at fermentum pharetra.`,
@@ -27,34 +28,47 @@ const generateDestinationTripPoint = () => {
     `In rutrum ac purus sit amet tempus.`
   ];
 
-  return {
-    name: getRandomArrayElement(cities),
-    description: new Array(getRandomInteger(0, 5))
-      .fill(``)
-      .map(() => {
-        return getRandomArrayElement(infoCities);
-      })
-      .join(` `),
-    photos: new Array(getRandomInteger(1, 5))
-      .fill(``)
-      .map(generatePhotoTripPoint)
-  };
+  const destinations = [];
+
+  cities.forEach((city) => {
+    return destinations.push({
+      name: city,
+      description: new Array(getRandomInteger(1, 5))
+        .fill(``)
+        .map(() => {
+          return getRandomArrayElement(infoCities);
+        })
+        .join(` `),
+      photos: new Array(getRandomInteger(1, 5))
+        .fill(``)
+        .map(generatePhotoTripPoint)
+    });
+  });
+
+  return destinations;
 };
 
-const generateOptionTripPoint = (type) => {
+export const generateTripPointOptions = () => {
   const optionName = [`Add luggage`, `Switch to comfort`, `Add meal`, `Choose seats`, `Travel by train`];
 
-  return {
-    type,
-    offers: new Array(getRandomInteger(0, 5))
-      .fill(``)
-      .map(() => {
-        return {
-          name: optionName[getRandomInteger(0, optionName.length - 1)],
-          price: getRandomInteger(1, 10) * 10
-        };
-      })
-  };
+  const tripPointTypes = new Array(0).concat(TRANSFER_TYPES, ACTIVITY_TYPES);
+  const tripPointOptions = [];
+
+  tripPointTypes.forEach((type) => {
+    return tripPointOptions.push({
+      type,
+      offers: new Array(getRandomInteger(0, 5))
+        .fill(``)
+        .map(() => {
+          return {
+            name: optionName[getRandomInteger(0, optionName.length - 1)],
+            price: getRandomInteger(1, 10) * 10
+          };
+        })
+    });
+  });
+
+  return tripPointOptions;
 };
 
 const generateDateStartTripPoint = () => {
@@ -83,12 +97,13 @@ export const generateTripPoint = () => {
   const dateStart = generateDateStartTripPoint();
 
   return {
+    id: generateId(),
     type,
     dateStart,
     dateFinish: generateDateFinishTripPoint(dateStart),
     price: getRandomInteger(1, 100) * 10,
-    destination: generateDestinationTripPoint(),
-    options: generateOptionTripPoint(type),
+    destination: getRandomArrayElement(DESTINATIONS),
+    options: getRandomArrayElement(OPTIONS),
     isFavorite: Boolean(getRandomInteger(0, 1)),
   };
 };
