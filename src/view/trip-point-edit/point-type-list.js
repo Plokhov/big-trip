@@ -1,6 +1,7 @@
 export default class TripPointTypeList {
-  constructor(types) {
+  constructor(types, tripPointType) {
     this._types = types;
+    this._tripPointType = tripPointType;
   }
 
   getTemplate() {
@@ -11,7 +12,8 @@ export default class TripPointTypeList {
           class="event__type-input  visually-hidden"
           type="radio"
           name="event-type"
-          value="${type.toLowerCase()}"
+          value="${type}"
+          ${this._tripPointType === type ? `checked` : ``}
         >
         <label
           class="event__type-label  event__type-label--${type.toLowerCase()}"

@@ -24,6 +24,7 @@ export default class Trip {
     this._tripDaysListComponent = new TripDaysListView();
 
     this._handleTripPointChange = this._handleTripPointChange.bind(this);
+    this._handleModeChange = this._handleModeChange.bind(this);
     this._handleSortTypeChange = this._handleSortTypeChange.bind(this);
   }
 
@@ -32,6 +33,12 @@ export default class Trip {
     this._sourcedTripPoints = tripPoints.slice();
 
     this._renderTrip();
+  }
+
+  _handleModeChange() {
+    Object
+      .values(this._tripPointPresenter)
+      .forEach((presenter) => presenter.resetView());
   }
 
   _handleTripPointChange(updatedPoint) {
@@ -82,7 +89,7 @@ export default class Trip {
   }
 
   _renderTripPoint(tripPointListElement, tripPoint) {
-    const tripPointPresenter = new TripPointPresenter(tripPointListElement, this._handleTripPointChange);
+    const tripPointPresenter = new TripPointPresenter(tripPointListElement, this._handleTripPointChange, this._handleModeChange);
     tripPointPresenter.init(tripPoint);
     this._tripPointPresenter[tripPoint.id] = tripPointPresenter;
   }

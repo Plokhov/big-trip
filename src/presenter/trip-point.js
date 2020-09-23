@@ -3,16 +3,22 @@ import TripPointEditView from "../view/trip-point-edit/trip-point-edit.js";
 
 import {render, RenderPosition, replace, remove} from "../utils/render.js";
 
+const Mode = {
+  DEFAULT: `DEFAULT`,
+  EDITING: `EDITING`
+};
+
 export default class TripPoint {
-  constructor(tripPointListContainer, changeData) {
+  constructor(tripPointListContainer, changeData, changeMode) {
     this._tripPointListContainer = tripPointListContainer;
     this._changeData = changeData;
+    this._changeMode = changeMode;
 
     this._tripPointComponent = null;
     this._tripPointEditComponent = null;
+    this._mode = Mode.DEFAULT;
 
     this._handleRollupBtnClick = this._handleRollupBtnClick.bind(this);
-    this._handleFavoriteClick = this._handleFavoriteClick.bind(this);
     this._handleFormSubmit = this._handleFormSubmit.bind(this);
     this._escKeyDownHandler = this._escKeyDownHandler.bind(this);
   }
@@ -27,7 +33,6 @@ export default class TripPoint {
     this._tripPointEditComponent = new TripPointEditView(tripPoint);
 
     this._tripPointComponent.setRollupBtnClickHandler(this._handleRollupBtnClick);
-    this._tripPointEditComponent.setFavoriteClickHandler(this._handleFavoriteClick);
     this._tripPointEditComponent.setFormSubmitHandler(this._handleFormSubmit);
 
     if (prevTripPointComponent === null || prevTripPointEditComponent === null) {
@@ -35,11 +40,11 @@ export default class TripPoint {
       return;
     }
 
-    if (this._tripPointListContainer.getElement().contains(prevTripPointComponent.getElement())) {
+    if (this._mode === Mode.DEFAULT) {
       replace(this._tripPointComponent, prevTripPointComponent);
     }
 
-    if (this._tripPointListContainer.getElement().contains(prevTripPointEditComponent.getElement())) {
+    if (this._mode === Mode.EDITING) {
       replace(this._tripPointEditComponent, prevTripPointEditComponent);
     }
 
@@ -52,38 +57,37 @@ export default class TripPoint {
     remove(this._tripPointEditComponent);
   }
 
+  resetView() {
+    if (this._mode !== Mode.DEFAULT) {
+      this._replaceFormToPoint();
+    }
+  }
+
   _replacePointToForm() {
     replace(this._tripPointEditComponent, this._tripPointComponent);
     document.addEventListener(`keydown`, this._escKeyDownHandler);
+    this._changeMode();
+    this._mode = Mode.EDITING;
   }
 
   _replaceFormToPoint() {
     replace(this._tripPointComponent, this._tripPointEditComponent);
     document.removeEventListener(`keydown`, this._escKeyDownHandler);
+    this._mode = Mode.DEFAULT;
   }
 
   _escKeyDownHandler(evt) {
     if (evt.key === `Escape` || evt.key === `Esc`) {
       evt.preventDefault();
+      this._tripPointEditComponent.reset(this._tripPoint);
       this._replaceFormToPoint();
+
       document.removeEventListener(`keydown`, this._escKeyDownHandler);
     }
   }
 
   _handleRollupBtnClick() {
     this._replacePointToForm();
-  }
-
-  _handleFavoriteClick() {
-    this._changeData(
-        Object.assign(
-            {},
-            this._tripPoint,
-            {
-              isFavorite: !this._tripPoint.isFavorite
-            }
-        )
-    );
   }
 
   _handleFormSubmit(tripPoint) {
