@@ -2,7 +2,7 @@ import Abstract from "../abstract.js";
 
 import TripPointOffers from "./point-offers.js";
 import {TRANSFER_TYPES} from "../../const.js";
-import {humanizeTime, createDurationtTimeTemplate} from "../../utils/trip.js";
+import {formatTime, createDurationtTimeTemplate} from "../../utils/trip.js";
 
 export default class TripPointView extends Abstract {
   constructor(tripPoint) {
@@ -41,11 +41,11 @@ export default class TripPointView extends Abstract {
           <div class="event__schedule">
             <p class="event__time">
               <time class="event__start-time" datetime="2019-03-18T10:30">
-                ${humanizeTime(dateStart)}
+                ${formatTime(dateStart)}
               </time>
               &mdash;
               <time class="event__end-time" datetime="2019-03-18T11:00">
-                ${humanizeTime(dateFinish)}
+                ${formatTime(dateFinish)}
               </time>
             </p>
             <p class="event__duration">${createDurationtTimeTemplate(dateStart, dateFinish)}</p>

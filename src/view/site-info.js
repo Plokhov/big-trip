@@ -1,5 +1,5 @@
 import Abstract from "./abstract.js";
-import {createShortDateTemplate} from "../utils/trip.js";
+import {fromatShortDate} from "../utils/trip.js";
 
 export default class SiteInfoView extends Abstract {
   constructor(itinerary) {
@@ -26,9 +26,9 @@ export default class SiteInfoView extends Abstract {
           <div class="trip-info__main">
             <h1 class="trip-info__title">${infoTitleTemplate}</h1>
             <p class="trip-info__dates">
-              ${createShortDateTemplate(dateStart)}
+              ${fromatShortDate(dateStart)}
               &nbsp;&mdash;&nbsp;
-              ${createShortDateTemplate(dateFinish)}
+              ${fromatShortDate(dateFinish)}
             </p>
           </div>
 

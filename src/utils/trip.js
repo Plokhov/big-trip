@@ -1,23 +1,36 @@
-export const humanizeTime = (dueDate) => {
-  return dueDate.toLocaleTimeString(`en-US`, {hour12: false, hour: `numeric`, minute: `numeric`});
+import moment from "moment";
+
+export const formatTime = (date) => {
+  if (!(date instanceof Date)) {
+    return ``;
+  }
+
+  return moment(date).format(`hh:mm`);
 };
 
-export const humanizeDate = (dueDate) => {
-  return dueDate.toLocaleDateString(`en-GB`, {day: `numeric`, month: `numeric`, year: `2-digit`, hour: `numeric`, minute: `numeric`});
+export const formatFullDate = (date) => {
+  if (!(date instanceof Date)) {
+    return ``;
+  }
+
+  return moment(date).format(`DD MM YY hh:mm`);
 };
 
-export const createShortDateTemplate = (date) => {
-  return `${date
-    .toLocaleDateString(`en-US`, {month: `short`, day: `numeric`})
-    .toUpperCase()}`;
+export const fromatShortDate = (date) => {
+  if (!(date instanceof Date)) {
+    return ``;
+  }
+
+  return moment(date).format(`MMM D`);
 };
 
 export const createDurationtTimeTemplate = (dateStart, dateFinish) => {
-  const durationTime = dateFinish.getTime() - dateStart.getTime();
+  const start = moment(dateStart);
+  const finish = moment(dateFinish);
 
-  const durationTimeInMinutes = durationTime / 60000;
-  const durationTimeInHours = Math.floor(durationTimeInMinutes / 60);
-  const durationTimeInDays = Math.floor(durationTimeInHours / 24);
+  const durationTimeInMinutes = finish.diff(start, `minutes`);
+  const durationTimeInHours = finish.diff(start, `hours`);
+  const durationTimeInDays = finish.diff(start, `days`);
 
   const minutes = durationTimeInMinutes % 60 < 10
     ? `0${durationTimeInMinutes % 60}`
@@ -54,7 +67,7 @@ export const sortTripPointsByDays = (tripPoints) => {
   const tripDaysDates = Array
     .from(new Set(sortTripPointsInTime(tripPoints)
     .map((it) => {
-      return createShortDateTemplate(it.dateStart);
+      return fromatShortDate(it.dateStart);
     })));
 
   for (let i = 0; i < tripDaysDates.length; i++) {
@@ -62,7 +75,7 @@ export const sortTripPointsByDays = (tripPoints) => {
       date: tripDaysDates[i],
       tripPoints: tripPoints
         .filter((it) => {
-          return createShortDateTemplate(it.dateStart) === tripDaysDates[i];
+          return fromatShortDate(it.dateStart) === tripDaysDates[i];
         })
     };
 
@@ -77,7 +90,6 @@ export const sortTripPointsByPrice = (tripPointA, tripPointB) => {
 };
 
 export const sortTripPointsByDuration = (tripPointA, tripPointB) => {
-
   tripPointA.durationTime = tripPointA.dateFinish.getTime() - tripPointA.dateStart.getTime();
   tripPointB.durationTime = tripPointB.dateFinish.getTime() - tripPointB.dateStart.getTime();
   return tripPointB.durationTime - tripPointA.durationTime;
