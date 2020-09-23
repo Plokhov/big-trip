@@ -1,10 +1,13 @@
 import Smart from "../smart.js";
-
 import TripPointTypeList from "./point-type-list.js";
 import TripPointEditButtons from "./point-edit-buttons.js";
 import TripPointDetails from "./point-details.js";
+
 import {TRANSFER_TYPES, ACTIVITY_TYPES, DESTINATIONS, OPTIONS} from "../../const.js";
-import {humanizeDate} from "../../utils/trip.js";
+import {formatFullDate} from "../../utils/trip.js";
+
+import flatpickr from "flatpickr";
+import "../../../node_modules/flatpickr/dist/flatpickr.min.css";
 
 const BLANK_TRIP_POINT = {
   type: `Bus`,
@@ -55,17 +58,22 @@ const BLANK_TRIP_POINT = {
 export default class TripPointEditView extends Smart {
   constructor(tripPoint = BLANK_TRIP_POINT) {
     super();
-
     this._data = TripPointEditView.parsePointToData(tripPoint);
+    this._dateStartDatepicker = null;
+    this._dateFinishDatepicker = null;
 
-    this._destinationChangeHandler = this._destinationChangeHandler.bind(this);
     this._typeChangeHandler = this._typeChangeHandler.bind(this);
+    this._destinationChangeHandler = this._destinationChangeHandler.bind(this);
+    this._dateStartChangeHandler = this._dateStartChangeHandler.bind(this);
+    this._dateFinishChangeHandler = this._dateFinishChangeHandler.bind(this);
     this._priceInputHandler = this._priceInputHandler.bind(this);
     this._optionsChangeHandler = this._optionsChangeHandler.bind(this);
     this._favoriteClickHandler = this._favoriteClickHandler.bind(this);
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
 
     this._setInnerHandlers();
+    this._setDateStartDatepicker();
+    this._setDateFinishDatepicker();
   }
 
   reset(tripPoint) {
@@ -137,10 +145,11 @@ export default class TripPointEditView extends Smart {
                 From
               </label>
               <input
-                class="event__input  event__input--time" id="event-start-time-1"
+                class="event__input  event__input--time"
+                id="event-start-time-1"
                 type="text"
                 name="event-start-time"
-                value="${humanizeDate(dateStart)}"
+                value="${formatFullDate(dateStart)}"
               >
               &mdash;
               <label class="visually-hidden" for="event-end-time-1">
@@ -151,7 +160,7 @@ export default class TripPointEditView extends Smart {
                 id="event-end-time-1"
                 type="text"
                 name="event-end-time"
-                value="${humanizeDate(dateFinish)}">
+                value="${formatFullDate(dateFinish)}">
             </div>
 
             <div class="event__field-group  event__field-group--price">
@@ -180,7 +189,46 @@ export default class TripPointEditView extends Smart {
 
   restoreHandlers() {
     this._setInnerHandlers();
+    this._setDateStartDatepicker();
+    this._setDateFinishDatepicker();
     this.setFormSubmitHandler(this._callback.formSubmit);
+  }
+
+  _setDateStartDatepicker() {
+    if (this._dateStartDatepicker) {
+      this._dateStartDatepicker.destroy();
+      this._dateStartDatepicker = null;
+    }
+
+    this._dateStartDatepicker = flatpickr(
+        this.getElement().querySelector(`#event-start-time-1`),
+        {
+          enableTime: true,
+          time24hr: true,
+          minDate: `today`,
+          dateFormat: `d/m/y H:i`,
+          defaultDate: this._data.dateStart,
+          onChange: this._dateStartChangeHandler
+        }
+    );
+  }
+
+  _setDateFinishDatepicker() {
+    if (this._dateFinishDatepicker) {
+      this._dateFinishDatepicker.destroy();
+      this._dateFinishDatepicker = null;
+    }
+
+    this._dateFinishDatepicker = flatpickr(
+        this.getElement().querySelector(`#event-end-time-1`),
+        {
+          enableTime: true,
+          minDate: this._data.dateStart,
+          dateFormat: `d/m/y H:i`,
+          defaultDate: this._data.dateFinish,
+          onChange: this._dateFinishChangeHandler
+        }
+    );
   }
 
   _setInnerHandlers() {
@@ -234,6 +282,19 @@ export default class TripPointEditView extends Smart {
     this.updateData({
       destination: newDestination,
       isDestination: newDestination !== 0,
+    });
+  }
+
+  _dateStartChangeHandler([userDate]) {
+    this.updateData({
+      dateStart: userDate,
+      dateFinish: userDate
+    });
+  }
+
+  _dateFinishChangeHandler([userDate]) {
+    this.updateData({
+      dateFinish: userDate
     });
   }
 
