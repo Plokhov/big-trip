@@ -26,13 +26,17 @@ export default class TripPointView extends Abstract {
       ? `${type} to`
       : `${type} in`;
 
+    const optionsTemplate = options
+      ? new TripPointOffers(options.offers.slice(0, 3)).getTemplate()
+      : ``;
+
     return (
       `<li class="trip-events__item">
         <div class="event">
           <div class="event__type">
             <img class="event__type-icon" width="42" height="42" src="img/icons/${type}.png" alt="Event type icon">
           </div>
-          <h3 class="event__title">${tripPointTitle} ${destination.name}</h3>
+          <h3 class="event__title">${tripPointTitle} ${destination ? destination.name : ``}</h3>
 
           <div class="event__schedule">
             <p class="event__time">
@@ -53,7 +57,7 @@ export default class TripPointView extends Abstract {
 
           <h4 class="visually-hidden">Offers:</h4>
           <ul class="event__selected-offers">
-            ${new TripPointOffers(options.offers.slice(0, 3)).getTemplate()}
+            ${optionsTemplate}
           </ul>
 
           <button class="event__rollup-btn" type="button">
