@@ -3,16 +3,17 @@ import TripPointTypeList from "./point-type-list.js";
 import TripPointEditButtons from "./point-edit-buttons.js";
 import TripPointDetails from "./point-details.js";
 
-import {TRANSFER_TYPES, ACTIVITY_TYPES, DESTINATIONS, OPTIONS} from "../../const.js";
+import {TRANSFER_TYPES, ACTIVITY_TYPES} from "../../const.js";
 import {formatFullDate} from "../../utils/trip.js";
 
+import he from "he";
 import flatpickr from "flatpickr";
 import "../../../node_modules/flatpickr/dist/flatpickr.min.css";
 
 const BLANK_TRIP_POINT = {
   type: `Bus`,
-  dateStart: new Date(`2019-03-18T00:00:00`),
-  dateFinish: new Date(`2019-03-18T00:00:00`),
+  dateStart: new Date(),
+  dateFinish: new Date(),
   price: 0,
   destination: {
     name: ``,
@@ -56,9 +57,17 @@ const BLANK_TRIP_POINT = {
 };
 
 export default class TripPointEditView extends Smart {
-  constructor(tripPoint = BLANK_TRIP_POINT) {
+  constructor(
+      tripPoint = BLANK_TRIP_POINT,
+      optionsModel,
+      destinationsModel,
+      isNewTripPoint = true
+  ) {
     super();
     this._data = TripPointEditView.parsePointToData(tripPoint);
+    this._optionsModel = optionsModel;
+    this._destinationsModel = destinationsModel;
+    this._isNewTripPoint = isNewTripPoint;
     this._dateStartDatepicker = null;
     this._dateFinishDatepicker = null;
 
@@ -70,10 +79,20 @@ export default class TripPointEditView extends Smart {
     this._optionsChangeHandler = this._optionsChangeHandler.bind(this);
     this._favoriteClickHandler = this._favoriteClickHandler.bind(this);
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
+    this._formDeleteClickHandler = this._formDeleteClickHandler.bind(this);
 
     this._setInnerHandlers();
     this._setDateStartDatepicker();
     this._setDateFinishDatepicker();
+  }
+
+  removeElement() {
+    super.removeElement();
+
+    if (this._datepicker) {
+      this._datepicker.destroy();
+      this._datepicker = null;
+    }
   }
 
   reset(tripPoint) {
@@ -93,97 +112,100 @@ export default class TripPointEditView extends Smart {
       isTransferType,
     } = this._data;
 
+    const destinations = this._destinationsModel.getDestinations();
+
     const tripPointTitle = isTransferType
       ? `${type} to`
       : `${type} in`;
 
 
     return (
-      `<li class="trip-events__item">
-        <form class="trip-events__item  event  event--edit" action="#" method="post">
-          <header class="event__header">
-            <div class="event__type-wrapper">
-              <label class="event__type  event__type-btn" for="event-type-toggle-1">
-                <span class="visually-hidden">Choose event type</span>
-                <img class="event__type-icon" width="17" height="17" src="img/icons/${type}.png" alt="Event type icon">
-              </label>
-              <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
+      `<form class="trip-events__item  event  event--edit" action="#" method="post">
+        <header class="event__header">
+          <div class="event__type-wrapper">
+            <label class="event__type  event__type-btn" for="event-type-toggle-1">
+              <span class="visually-hidden">Choose event type</span>
+              <img class="event__type-icon" width="17" height="17" src="img/icons/${type}.png" alt="Event type icon">
+            </label>
+            <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
 
-              <div class="event__type-list">
-                <fieldset class="event__type-group">
-                  <legend class="visually-hidden">Transfer</legend>
+            <div class="event__type-list">
+              <fieldset class="event__type-group">
+                <legend class="visually-hidden">Transfer</legend>
 
-                  ${new TripPointTypeList(TRANSFER_TYPES, type).getTemplate()}
-                </fieldset>
+                ${new TripPointTypeList(TRANSFER_TYPES, type).getTemplate()}
+              </fieldset>
 
-                <fieldset class="event__type-group">
-                  <legend class="visually-hidden">Activity</legend>
+              <fieldset class="event__type-group">
+                <legend class="visually-hidden">Activity</legend>
 
-                  ${new TripPointTypeList(ACTIVITY_TYPES, type).getTemplate()}
-                </fieldset>
-              </div>
+                ${new TripPointTypeList(ACTIVITY_TYPES, type).getTemplate()}
+              </fieldset>
             </div>
+          </div>
 
-            <div class="event__field-group  event__field-group--destination">
-              <label class="event__label  event__type-output" for="event-destination-1">
-                ${tripPointTitle}
-              </label>
-              <input class="event__input  event__input--destination"
-                id="event-destination-1"
-                type="text"
-                name="event-destination"
-                value="${destination ? destination.name : ``}"
-                list="destination-list-1"
-              >
-              <datalist id="destination-list-1">
-                ${DESTINATIONS.map((it) => `<option value="${it.name}"></option>`).join(``)}
-              </datalist>
-            </div>
+          <div class="event__field-group  event__field-group--destination">
+            <label class="event__label  event__type-output" for="event-destination-1">
+              ${tripPointTitle}
+            </label>
+            <input class="event__input  event__input--destination"
+              id="event-destination-1"
+              type="text"
+              name="event-destination"
+              value="${he.encode(destination.name)}"
+              list="destination-list-1"
+              required
+            >
+            <datalist id="destination-list-1">
+              ${destinations.map((it) => `<option value="${it.name}"></option>`).join(``)}
+            </datalist>
+          </div>
 
-            <div class="event__field-group  event__field-group--time">
-              <label class="visually-hidden" for="event-start-time-1">
-                From
-              </label>
-              <input
-                class="event__input  event__input--time"
-                id="event-start-time-1"
-                type="text"
-                name="event-start-time"
-                value="${formatFullDate(dateStart)}"
-              >
-              &mdash;
-              <label class="visually-hidden" for="event-end-time-1">
-                To
-              </label>
-              <input
-                class="event__input  event__input--time"
-                id="event-end-time-1"
-                type="text"
-                name="event-end-time"
-                value="${formatFullDate(dateFinish)}">
-            </div>
+          <div class="event__field-group  event__field-group--time">
+            <label class="visually-hidden" for="event-start-time-1">
+              From
+            </label>
+            <input
+              class="event__input  event__input--time"
+              id="event-start-time-1"
+              type="text"
+              name="event-start-time"
+              value="${formatFullDate(dateStart)}"
+            >
+            &mdash;
+            <label class="visually-hidden" for="event-end-time-1">
+              To
+            </label>
+            <input
+              class="event__input  event__input--time"
+              id="event-end-time-1"
+              type="text"
+              name="event-end-time"
+              value="${formatFullDate(dateFinish)}">
+          </div>
 
-            <div class="event__field-group  event__field-group--price">
-              <label class="event__label" for="event-price-1">
-                <span class="visually-hidden">Price</span>
-                &euro;
-              </label>
-              <input
-                class="event__input  event__input--price"
-                id="event-price-1"
-                type="text"
-                name="event-price"
-                value="${price === 0 ? `` : price}">
-            </div>
+          <div class="event__field-group  event__field-group--price">
+            <label class="event__label" for="event-price-1">
+              <span class="visually-hidden">Price</span>
+              &euro;
+            </label>
+            <input
+              class="event__input  event__input--price"
+              id="event-price-1"
+              type="number"
+              name="event-price"
+              value="${price === 0 ? `` : price}">
+          </div>
 
-            <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-            <button class="event__reset-btn" type="reset">Cancel</button>
+          <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
+          <button class="event__reset-btn" type="reset">
+            ${this._isNewTripPoint ? `Cancel` : `Delete`}
+          </button>
 
-            ${new TripPointEditButtons(this._data).getTemplate()}
-          </header>
-          ${new TripPointDetails(type, options, destination).getTemplate()}
-        </form>
-      </li>`
+          ${new TripPointEditButtons(this._data).getTemplate()}
+        </header>
+        ${new TripPointDetails(this._optionsModel, type, options, destination).getTemplate()}
+      </form>`
     );
   }
 
@@ -192,6 +214,7 @@ export default class TripPointEditView extends Smart {
     this._setDateStartDatepicker();
     this._setDateFinishDatepicker();
     this.setFormSubmitHandler(this._callback.formSubmit);
+    this.setDeleteClickHandler(this._callback.deleteClick);
   }
 
   _setDateStartDatepicker() {
@@ -205,7 +228,6 @@ export default class TripPointEditView extends Smart {
         {
           enableTime: true,
           time24hr: true,
-          minDate: `today`,
           dateFormat: `d/m/y H:i`,
           defaultDate: this._data.dateStart,
           onChange: this._dateStartChangeHandler
@@ -274,7 +296,8 @@ export default class TripPointEditView extends Smart {
 
   _destinationChangeHandler(evt) {
     evt.preventDefault();
-    const newDestination = DESTINATIONS
+    const newDestination = this._destinationsModel
+      .getDestinations()
       .filter((it) => {
         return it.name === evt.target.value;
       })[0];
@@ -317,9 +340,11 @@ export default class TripPointEditView extends Smart {
     const checkedOffers = document.querySelectorAll(`.event__offer-checkbox:checked`);
     const titleCheckedOffers = Array.from(checkedOffers).map((it) => it.name);
 
-    const currentOptions = OPTIONS.filter((it) => {
-      return it.type === this._data.type;
-    })[0];
+    const currentOptions = this._optionsModel
+      .getOptions()
+      .filter((it) => {
+        return it.type === this._data.type;
+      })[0];
 
     const newOffers = [];
 
@@ -348,6 +373,16 @@ export default class TripPointEditView extends Smart {
   setFormSubmitHandler(callback) {
     this._callback.formSubmit = callback;
     this.getElement().addEventListener(`submit`, this._formSubmitHandler);
+  }
+
+  _formDeleteClickHandler(evt) {
+    evt.preventDefault();
+    this._callback.deleteClick(TripPointEditView.parseDataToPoint(this._data));
+  }
+
+  setDeleteClickHandler(callback) {
+    this._callback.deleteClick = callback;
+    this.getElement().querySelector(`.event__reset-btn`).addEventListener(`click`, this._formDeleteClickHandler);
   }
 
   static parsePointToData(tripPoint) {

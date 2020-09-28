@@ -16,11 +16,14 @@ export const render = (container, child, place) => {
   }
 
   switch (place) {
-    case RenderPosition.AFTERBEGIN:
-      container.prepend(child);
+    case RenderPosition.BEFOREBEGIN:
+      container.before(child);
       break;
     case RenderPosition.BEFOREEND:
       container.append(child);
+      break;
+    case RenderPosition.AFTERBEGIN:
+      container.prepend(child);
       break;
     case RenderPosition.AFTEREND:
       container.after(child);
@@ -62,6 +65,10 @@ export const replace = (newChild, oldChild) => {
 };
 
 export const remove = (component) => {
+  if (component === null) {
+    return;
+  }
+
   if (!(component instanceof Abstract)) {
     throw new Error(`Can remove only components`);
   }

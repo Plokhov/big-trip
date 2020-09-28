@@ -94,3 +94,23 @@ export const sortTripPointsByDuration = (tripPointA, tripPointB) => {
   tripPointB.durationTime = tripPointB.dateFinish.getTime() - tripPointB.dateStart.getTime();
   return tripPointB.durationTime - tripPointA.durationTime;
 };
+
+export const isTripPointExpired = (dueDate) => {
+  if (dueDate === null) {
+    return false;
+  }
+
+  const currentDate = new Date();
+
+  return moment(dueDate).isBefore(currentDate);
+};
+
+export const isTripPointPlanned = (dueDate) => {
+  if (dueDate === null) {
+    return false;
+  }
+
+  const currentDate = new Date();
+
+  return moment(dueDate).isAfter(currentDate);
+};
