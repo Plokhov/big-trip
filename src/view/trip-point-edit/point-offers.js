@@ -1,16 +1,17 @@
-import {OPTIONS} from "../../const.js";
-
 export default class TripPointsOffers {
-  constructor(options) {
+  constructor(options, optionsModel) {
     this._options = options;
+    this._optionsModel = optionsModel;
   }
 
   getTemplate() {
     const {type, offers} = this._options;
 
-    const currentOptions = OPTIONS.filter((it) => {
-      return it.type === type;
-    })[0];
+    const currentOptions = this._optionsModel
+      .getOptions()
+      .filter((it) => {
+        return it.type === type;
+      })[0];
 
     return (
       `<section class="event__section  event__section--offers">

@@ -2,6 +2,7 @@ import TripPointView from "../view/trip-point/trip-point.js";
 import TripPointEditView from "../view/trip-point-edit/trip-point-edit.js";
 
 import {render, RenderPosition, replace, remove} from "../utils/render.js";
+import {SortType, UserAction, UpdateType} from "../const.js";
 
 const Mode = {
   DEFAULT: `DEFAULT`,
@@ -9,10 +10,20 @@ const Mode = {
 };
 
 export default class TripPoint {
-  constructor(tripPointListContainer, changeData, changeMode) {
+  constructor(
+      tripPointListContainer,
+      currentSortType,
+      changeData,
+      changeMode,
+      optionsModel,
+      destinationsModel
+  ) {
     this._tripPointListContainer = tripPointListContainer;
+    this._currentSortType = currentSortType;
     this._changeData = changeData;
     this._changeMode = changeMode;
+    this._optionsModel = optionsModel;
+    this._destinationsModel = destinationsModel;
 
     this._tripPointComponent = null;
     this._tripPointEditComponent = null;
@@ -20,6 +31,7 @@ export default class TripPoint {
 
     this._handleRollupBtnClick = this._handleRollupBtnClick.bind(this);
     this._handleFormSubmit = this._handleFormSubmit.bind(this);
+    this._handleDeleteClick = this._handleDeleteClick.bind(this);
     this._escKeyDownHandler = this._escKeyDownHandler.bind(this);
   }
 
@@ -30,10 +42,16 @@ export default class TripPoint {
     const prevTripPointEditComponent = this._tripPointEditComponent;
 
     this._tripPointComponent = new TripPointView(tripPoint);
-    this._tripPointEditComponent = new TripPointEditView(tripPoint);
+    this._tripPointEditComponent = new TripPointEditView(
+        tripPoint,
+        this._optionsModel,
+        this._destinationsModel,
+        false
+    );
 
     this._tripPointComponent.setRollupBtnClickHandler(this._handleRollupBtnClick);
     this._tripPointEditComponent.setFormSubmitHandler(this._handleFormSubmit);
+    this._tripPointEditComponent.setDeleteClickHandler(this._handleDeleteClick);
 
     if (prevTripPointComponent === null || prevTripPointEditComponent === null) {
       render(this._tripPointListContainer, this._tripPointComponent, RenderPosition.BEFOREEND);
@@ -91,7 +109,23 @@ export default class TripPoint {
   }
 
   _handleFormSubmit(tripPoint) {
-    this._changeData(tripPoint);
+    const isMinorUpdate = this._currentSortType === SortType.TIME || this._currentSortType === SortType.PRICE;
+
+    this._changeData(
+        UserAction.UPDATE_TRIP_POINT,
+        isMinorUpdate ? UpdateType.MINOR : UpdateType.MAJOR,
+        tripPoint
+    );
     this._replaceFormToPoint();
+  }
+
+  _handleDeleteClick(task) {
+    const isMinorUpdate = this._currentSortType === SortType.TIME || this._currentSortType === SortType.PRICE;
+
+    this._changeData(
+        UserAction.DELETE_TRIP_POINT,
+        isMinorUpdate ? UpdateType.MINOR : UpdateType.MAJOR,
+        task
+    );
   }
 }
