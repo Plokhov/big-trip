@@ -31,28 +31,7 @@ const BLANK_TRIP_POINT = {
   },
   options: {
     type: `Bus`,
-    offers: [
-      {
-        name: `Add luggage`,
-        price: 30,
-      },
-      {
-        name: `Switch to comfort class`,
-        price: 100,
-      },
-      {
-        name: `Add meal`,
-        price: 15,
-      },
-      {
-        name: `Choose seats`,
-        price: 5,
-      },
-      {
-        name: `Travel by train`,
-        price: 40,
-      }
-    ]
+    offers: []
   },
 };
 
@@ -118,7 +97,6 @@ export default class TripPointEditView extends Smart {
       ? `${type} to`
       : `${type} in`;
 
-
     return (
       `<form class="trip-events__item  event  event--edit" action="#" method="post">
         <header class="event__header">
@@ -152,7 +130,7 @@ export default class TripPointEditView extends Smart {
               id="event-destination-1"
               type="text"
               name="event-destination"
-              value="${he.encode(destination.name)}"
+              value="${destination ? he.encode(destination.name) : ``}"
               list="destination-list-1"
               required
             >
@@ -194,7 +172,9 @@ export default class TripPointEditView extends Smart {
               id="event-price-1"
               type="number"
               name="event-price"
-              value="${price === 0 ? `` : price}">
+              value="${price === 0 ? `` : price}"
+              required
+            >
           </div>
 
           <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
@@ -324,7 +304,7 @@ export default class TripPointEditView extends Smart {
   _priceInputHandler(evt) {
     evt.preventDefault();
     this.updateData({
-      price: evt.target.value
+      price: +evt.target.value
     });
   }
 

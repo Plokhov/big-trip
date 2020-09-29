@@ -16,6 +16,10 @@ export default class TripPointsDetails {
         return it.type === this._type;
       })[0];
 
+    const destinationTemplate = this._destination
+      ? new TripPointDestination(this._destination).getTemplate()
+      : ``;
+
     if (currentTypeOptions.offers.length === 0) {
       return (
         `<section class="event__details">
@@ -27,7 +31,8 @@ export default class TripPointsDetails {
     return (
       `<section class="event__details">
         ${new TripPointOffers(this._options, this._optionsModel).getTemplate()}
-        ${new TripPointDestination(this._destination).getTemplate()}
+
+        ${destinationTemplate}
       </section>`
     );
   }
