@@ -8,13 +8,15 @@ import FilterPresenter from "./presenter/filter.js";
 
 import SiteInfoView from "./view/site-info.js";
 import SiteMenuView from "./view/site-menu.js";
+import StatisticsView from "./view/statistics.js";
 
 import {generateItinerary} from "./mock/itinerary.js";
 import {generateDestinations} from "./mock/destinations.js";
 import {generateOptions} from "./mock/options.js";
 import {generateTripPoint} from "./mock/trip-point.js";
 
-import {RenderPosition, render} from "./utils/render.js";
+import {RenderPosition, render, remove} from "./utils/render.js";
+import {MenuItem} from "./const.js";
 
 const TRIP_POINT_COUNT = 15;
 
@@ -41,7 +43,25 @@ const tripControlsElement = tripMainElement.querySelector(`.trip-controls`);
 const tripMenuHeaderElement = tripControlsElement.querySelector(`h2:first-child`);
 const tripFilterHeaderElement = tripControlsElement.querySelector(`h2:nth-child(2)`);
 
-render(tripMenuHeaderElement, new SiteMenuView(), RenderPosition.AFTEREND);
+const siteMenuComponent = new SiteMenuView();
+render(tripMenuHeaderElement, siteMenuComponent, RenderPosition.AFTEREND);
+
+let statisticsComponent = null;
+const handleSiteMenuClick = (menuItem) => {
+  switch (menuItem) {
+    case MenuItem.TABLE:
+      tripPresenter.init();
+      remove(statisticsComponent);
+      break;
+    case MenuItem.STATISTICS:
+      tripPresenter._clearTrip();
+      statisticsComponent = new StatisticsView(tripPointsModel.getTripPoints());
+      render(tripEventsElement, statisticsComponent, RenderPosition.BEFOREEND);
+      break;
+  }
+};
+
+siteMenuComponent.setMenuClickHandler(handleSiteMenuClick);
 
 const tripEventsElement = document.querySelector(`.trip-events`);
 
