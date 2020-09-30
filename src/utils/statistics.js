@@ -28,8 +28,8 @@ export const countDurationTimeByType = (tripPoints, type) => {
 };
 
 export const getTimeFromMins = (mins) => {
-  let hours = Math.trunc(mins / 60);
-  let minutes = mins % 60;
+  const hours = Math.trunc(mins / 60);
+  const minutes = mins % 60;
 
   if (mins < 60) {
     return minutes + `Min`;

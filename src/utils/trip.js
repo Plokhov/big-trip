@@ -62,7 +62,7 @@ export const sortTripPointsInTime = (tripPoints) => {
 };
 
 export const sortTripPointsByDays = (tripPoints) => {
-  let tripDays = [];
+  const tripDays = [];
 
   const tripDaysDates = Array
     .from(new Set(sortTripPointsInTime(tripPoints)
