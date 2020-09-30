@@ -1,5 +1,4 @@
 import TripPointEditView from "../view/trip-point-edit/trip-point-edit.js";
-import {generateId} from "../mock/trip-point.js";
 import {remove, render, RenderPosition} from "../utils/render.js";
 import {UserAction, UpdateType} from "../const.js";
 
@@ -53,13 +52,31 @@ export default class TripPointNew {
     document.removeEventListener(`keydown`, this._escKeyDownHandler);
   }
 
+  setSaving() {
+    this._tripPointEditComponent.updateData({
+      isDisabled: true,
+      isSaving: true
+    });
+  }
+
+  setAborting() {
+    const resetFormState = () => {
+      this._tripPointEditComponent.updateData({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false
+      });
+    };
+
+    this._tripPointEditComponent.shake(resetFormState);
+  }
+
   _handleFormSubmit(tripPoint) {
     this._changeData(
         UserAction.ADD_TRIP_POINT,
         UpdateType.MAJOR,
-        Object.assign({id: generateId()}, tripPoint)
+        tripPoint
     );
-    this.destroy();
   }
 
   _handleCancelClick() {

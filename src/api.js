@@ -2,7 +2,9 @@ import TripPointsModel from "./model/trip-points.js";
 
 const Method = {
   GET: `GET`,
-  PUT: `PUT`
+  PUT: `PUT`,
+  POST: `POST`,
+  DELETE: `DELETE`
 };
 
 const SuccessHTTPStatusRange = {
@@ -41,6 +43,24 @@ export default class Api {
     })
       .then(Api.toJSON)
       .then(TripPointsModel.adaptToClient);
+  }
+
+  addTripPoint(tripPoint) {
+    return this._load({
+      url: `points`,
+      method: Method.POST,
+      body: JSON.stringify(TripPointsModel.adaptToServer(tripPoint)),
+      headers: new Headers({"Content-Type": `application/json`})
+    })
+      .then(Api.toJSON)
+      .then(TripPointsModel.adaptToClient);
+  }
+
+  deleteTripPoint(tripPoint) {
+    return this._load({
+      url: `points/${tripPoint.id}`,
+      method: Method.DELETE
+    });
   }
 
   _load({

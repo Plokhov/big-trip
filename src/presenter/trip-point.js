@@ -9,6 +9,12 @@ const Mode = {
   EDITING: `EDITING`
 };
 
+export const State = {
+  SAVING: `SAVING`,
+  DELETING: `DELETING`,
+  ABORTING: `ABORTING`
+};
+
 export default class TripPoint {
   constructor(
       tripPointListContainer,
@@ -62,7 +68,8 @@ export default class TripPoint {
     }
 
     if (this._mode === Mode.EDITING) {
-      replace(this._tripPointEditComponent, prevTripPointEditComponent);
+      replace(this._tripPointComponent, prevTripPointEditComponent);
+      this._mode = Mode.DEFAULT;
     }
 
     remove(prevTripPointComponent);
@@ -77,6 +84,35 @@ export default class TripPoint {
   resetView() {
     if (this._mode !== Mode.DEFAULT) {
       this._replaceFormToPoint();
+    }
+  }
+
+  setViewState(state) {
+    const resetFormState = () => {
+      this._tripPointEditComponent.updateData({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false
+      });
+    };
+
+    switch (state) {
+      case State.SAVING:
+        this._tripPointEditComponent.updateData({
+          isDisabled: true,
+          isSaving: true
+        });
+        break;
+      case State.DELETING:
+        this._tripPointEditComponent.updateData({
+          isDisabled: true,
+          isDeleting: true
+        });
+        break;
+      case State.ABORTING:
+        this._tripPointComponent.shake(resetFormState);
+        this._tripPointEditComponent.shake(resetFormState);
+        break;
     }
   }
 
@@ -115,7 +151,6 @@ export default class TripPoint {
         isMinorUpdate ? UpdateType.MINOR : UpdateType.MAJOR,
         tripPoint
     );
-    this._replaceFormToPoint();
   }
 
   _handleDeleteClick(task) {

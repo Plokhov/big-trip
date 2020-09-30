@@ -3,8 +3,6 @@ import {getRandomInteger, getRandomArrayElement} from "../utils/common.js";
 import {generateOptions} from './options.js';
 import {generateDestinations} from "./destinations.js";
 
-export const generateId = () => Date.now() + parseInt(Math.random() * 10000, 10);
-
 const generateTypeTripPoint = () => {
   const tripPointTypes = new Array(0).concat(TRANSFER_TYPES, ACTIVITY_TYPES);
 
@@ -46,7 +44,7 @@ export const generateTripPoint = () => {
   newTripPointsOption.offers = newTripPointsOption.offers.slice(0, getRandomInteger(0, 3));
 
   return {
-    id: generateId(),
+    id: (Date.now() + parseInt(Math.random() * 10000, 10)),
     type,
     dateStart,
     dateFinish: generateDateFinishTripPoint(dateStart),

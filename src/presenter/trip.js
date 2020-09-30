@@ -1,4 +1,4 @@
-import TripPointPresenter from "./trip-point.js";
+import TripPointPresenter, {State as TripPointPresenterViewState} from "./trip-point.js";
 import TripPointNewPresenter from "./trip-point-new.js";
 
 import SortView from "../view/sort.js";
@@ -73,16 +73,33 @@ export default class Trip {
   _handleViewAction(actionType, updateType, update) {
     switch (actionType) {
       case UserAction.UPDATE_TRIP_POINT:
+        this._tripPointPresenter[update.id].setViewState(TripPointPresenterViewState.SAVING);
         this._api.updateTripPoint(update)
           .then((response) => {
             this._tripPointsModel.updateTripPoint(updateType, response);
+          })
+          .catch(() => {
+            this._tripPointPresenter[update.id].setViewState(TripPointPresenterViewState.ABORTING);
           });
         break;
       case UserAction.ADD_TRIP_POINT:
-        this._tripPointsModel.addTripPoint(updateType, update);
+        this._tripPointNewPresenter.setSaving();
+        this._api.addTripPoint(update)
+          .then((response) => {
+            this._tripPointsModel.addTripPoint(updateType, response);
+          })
+          .catch(() => {
+            this._tripPointNewPresenter.setAborting();
+          });
         break;
       case UserAction.DELETE_TRIP_POINT:
-        this._tripPointsModel.deleteTripPoint(updateType, update);
+        this._tripPointPresenter[update.id].setViewState(TripPointPresenterViewState.DELETING);
+        this._api.deleteTripPoint(update).then(() => {
+          this._tripPointsModel.deleteTripPoint(updateType, update);
+        })
+        .catch(() => {
+          this._tripPointPresenter[update.id].setViewState(TripPointPresenterViewState.ABORTING);
+        });
         break;
     }
   }

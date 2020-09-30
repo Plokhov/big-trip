@@ -29,6 +29,7 @@ const BLANK_TRIP_POINT = {
     ]
   },
   offers: [],
+  isFavorite: false,
 };
 
 export default class TripPointEditView extends Smart {
@@ -70,6 +71,9 @@ export default class TripPointEditView extends Smart {
       destination,
       offers,
       isTransferType,
+      isDisabled,
+      isSaving,
+      isDeleting
     } = this._data;
 
     const destinations = this._destinationsModel.getDestinations();
@@ -77,6 +81,18 @@ export default class TripPointEditView extends Smart {
     const tripPointTitle = isTransferType
       ? `${type} to`
       : `${type} in`;
+
+    const buttonName = (deleting, isNewTripPoint) => {
+      if (isNewTripPoint) {
+        return `Cancel`;
+      }
+
+      if (deleting) {
+        return `Deleting...`;
+      }
+
+      return `Delete`;
+    };
 
     return (
       `<form class="trip-events__item  event  event--edit" action="#" method="post">
@@ -86,7 +102,7 @@ export default class TripPointEditView extends Smart {
               <span class="visually-hidden">Choose event type</span>
               <img class="event__type-icon" width="17" height="17" src="img/icons/${type}.png" alt="Event type icon">
             </label>
-            <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
+            <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox" ${isDisabled ? `disabled` : ``}>
 
             <div class="event__type-list">
               <fieldset class="event__type-group">
@@ -114,6 +130,7 @@ export default class TripPointEditView extends Smart {
               value="${destination ? he.encode(destination.name) : ``}"
               list="destination-list-1"
               required
+              ${isDisabled ? `disabled` : ``}
             >
             <datalist id="destination-list-1">
               ${destinations.map((it) => `<option value="${it.name}"></option>`).join(``)}
@@ -130,6 +147,7 @@ export default class TripPointEditView extends Smart {
               type="text"
               name="event-start-time"
               value="${formatFullDate(dateStart)}"
+              ${isDisabled ? `disabled` : ``}
             >
             &mdash;
             <label class="visually-hidden" for="event-end-time-1">
@@ -140,7 +158,9 @@ export default class TripPointEditView extends Smart {
               id="event-end-time-1"
               type="text"
               name="event-end-time"
-              value="${formatFullDate(dateFinish)}">
+              value="${formatFullDate(dateFinish)}"
+              ${isDisabled ? `disabled` : ``}
+            >
           </div>
 
           <div class="event__field-group  event__field-group--price">
@@ -154,13 +174,16 @@ export default class TripPointEditView extends Smart {
               type="number"
               name="event-price"
               value="${price}"
+              ${isDisabled ? `disabled` : ``}
               required
             >
           </div>
 
-          <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-          <button class="event__reset-btn" type="reset">
-            ${this._isNewTripPoint ? `Cancel` : `Delete`}
+          <button class="event__save-btn  btn  btn--blue" type="submit" ${isDisabled ? `disabled` : ``}>
+            ${isSaving ? `Saving...` : `Save`}
+          </button>
+          <button class="event__reset-btn" type="reset" ${isDisabled ? `disabled` : ``}>
+            ${buttonName(isDeleting, this._isNewTripPoint)}
           </button>
 
           ${new TripPointEditButtons(this._data).getTemplate()}
@@ -363,6 +386,9 @@ export default class TripPointEditView extends Smart {
           isTransferType: TRANSFER_TYPES
             .includes(tripPoint.type, 0),
           isDestination: tripPoint.destination !== null,
+          isDisabled: false,
+          isSaving: false,
+          isDeleting: false
         }
     );
   }
@@ -372,6 +398,9 @@ export default class TripPointEditView extends Smart {
 
     delete data.isTransferType;
     delete data.isDestination;
+    delete data.isDisabled;
+    delete data.isSaving;
+    delete data.isDeleting;
 
     return data;
   }
