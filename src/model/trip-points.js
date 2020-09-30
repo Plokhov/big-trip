@@ -6,17 +6,17 @@ export default class TripPoints extends Observer {
     this._tripPoints = [];
   }
 
-  setTripPoints(updateType, tripPoints) {
+  set(updateType, tripPoints) {
     this._tripPoints = tripPoints.slice();
 
     this._notify(updateType);
   }
 
-  getTripPoints() {
+  get() {
     return this._tripPoints;
   }
 
-  updateTripPoint(updateType, update) {
+  update(updateType, update) {
     const index = this._tripPoints.findIndex((tripPoint) => tripPoint.id === update.id);
 
     if (index === -1) {
@@ -32,7 +32,7 @@ export default class TripPoints extends Observer {
     this._notify(updateType, update);
   }
 
-  addTripPoint(updateType, update) {
+  add(updateType, update) {
     this._tripPoints = [
       update,
       ...this._tripPoints
@@ -41,7 +41,7 @@ export default class TripPoints extends Observer {
     this._notify(updateType, update);
   }
 
-  deleteTripPoint(updateType, update) {
+  delete(updateType, update) {
     const index = this._tripPoints.findIndex((tripPoint) => tripPoint.id === update.id);
 
     if (index === -1) {

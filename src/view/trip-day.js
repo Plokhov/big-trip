@@ -1,6 +1,6 @@
 import Abstract from "./abstract.js";
 
-export default class TripDayView extends Abstract {
+export default class TripDay extends Abstract {
   constructor(tripDay, dayNumber) {
     super();
     this._tripDay = tripDay;

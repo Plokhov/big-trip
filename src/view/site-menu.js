@@ -1,7 +1,7 @@
 import Abstract from "./abstract.js";
 import {MenuItem} from "../const.js";
 
-export default class SiteMenuView extends Abstract {
+export default class SiteMenu extends Abstract {
   constructor() {
     super();
 

@@ -1,11 +1,11 @@
 import Abstract from "./abstract.js";
 import {SortType} from "../const.js";
 
-export default class SortView extends Abstract {
+export default class Sort extends Abstract {
   constructor(currentSortType) {
     super();
     this._currentSortType = currentSortType;
-    this._sortTypeChangeHandler = this._sortTypeChangeHandler.bind(this);
+    this._typeChangeHandler = this._typeChangeHandler.bind(this);
   }
 
   getTemplate() {
@@ -69,7 +69,7 @@ export default class SortView extends Abstract {
     );
   }
 
-  _sortTypeChangeHandler(evt) {
+  _typeChangeHandler(evt) {
     if (evt.target.tagName !== `LABEL`) {
       return;
     }
@@ -78,8 +78,8 @@ export default class SortView extends Abstract {
     this._callback.sortTypeChange(evt.target.dataset.sortType);
   }
 
-  setSortTypeChangeHandler(callback) {
+  setTypeChangeHandler(callback) {
     this._callback.sortTypeChange = callback;
-    this.getElement().addEventListener(`click`, this._sortTypeChangeHandler);
+    this.getElement().addEventListener(`click`, this._typeChangeHandler);
   }
 }

@@ -16,7 +16,7 @@ export const formatFullDate = (date) => {
   return moment(date).format(`DD MM YY hh:mm`);
 };
 
-export const fromatShortDate = (date) => {
+const formatShortDate = (date) => {
   if (!(date instanceof Date)) {
     return ``;
   }
@@ -67,7 +67,7 @@ export const sortTripPointsByDays = (tripPoints) => {
   const tripDaysDates = Array
     .from(new Set(sortTripPointsInTime(tripPoints)
     .map((it) => {
-      return fromatShortDate(it.dateStart);
+      return formatShortDate(it.dateStart);
     })));
 
   for (let i = 0; i < tripDaysDates.length; i++) {
@@ -75,7 +75,7 @@ export const sortTripPointsByDays = (tripPoints) => {
       date: tripDaysDates[i],
       tripPoints: tripPoints
         .filter((it) => {
-          return fromatShortDate(it.dateStart) === tripDaysDates[i];
+          return formatShortDate(it.dateStart) === tripDaysDates[i];
         })
     };
 

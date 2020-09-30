@@ -3,7 +3,7 @@ import FilterModel from "./model/filter.js";
 import OffersModel from "./model/offers.js";
 import DestinationsModel from "./model/destinations.js";
 
-import TripPresenter from "./presenter/trip.js";
+import TripEventsPresenter from "./presenter/trip-events.js";
 import FilterPresenter from "./presenter/filter.js";
 
 import SiteMenuView from "./view/site-menu.js";
@@ -32,7 +32,7 @@ const tripPointsModel = new TripPointsModel();
 const filterModel = new FilterModel();
 
 const filterPresenter = new FilterPresenter(tripFilterHeaderElement, filterModel, tripPointsModel);
-const tripPresenter = new TripPresenter(
+const tripEventsPresenter = new TripEventsPresenter(
     tripEventsElement,
     tripPointsModel,
     filterModel,
@@ -48,38 +48,40 @@ let statisticsComponent = null;
 const handleSiteMenuClick = (menuItem) => {
   switch (menuItem) {
     case MenuItem.TABLE:
-      tripPresenter._clearTrip();
-      tripPresenter.init();
+      tripEventsPresenter.clear();
+      tripEventsPresenter.init();
       remove(statisticsComponent);
       break;
     case MenuItem.STATISTICS:
-      tripPresenter._clearTrip();
-      statisticsComponent = new StatisticsView(tripPointsModel.getTripPoints());
+      tripEventsPresenter.clear();
+      buttonNewTripPoint.setAttribute(`disabled`, `disabled`);
+      statisticsComponent = new StatisticsView(tripPointsModel.get());
       render(tripEventsElement, statisticsComponent, RenderPosition.BEFOREEND);
       break;
   }
 };
 
 filterPresenter.init();
-tripPresenter.init();
+tripEventsPresenter.init();
 
 buttonNewTripPoint.addEventListener(`click`, (evt) => {
   evt.preventDefault();
-  tripPresenter.createTripPoint();
+  tripEventsPresenter.clearNoPoints();
+  tripEventsPresenter.createPoint();
 });
 
 api.getOffers()
-  .then((offers) => offersModel.setOffers(offers))
+  .then((offers) => offersModel.set(offers))
   .then(() => api.getDestinations())
-  .then((destinations) => destinationsModel.setDestinations(destinations))
+  .then((destinations) => destinationsModel.set(destinations))
   .then(() => api.getTripPoints())
   .then((tripPoints) => {
-    tripPointsModel.setTripPoints(UpdateType.INIT, tripPoints);
+    tripPointsModel.set(UpdateType.INIT, tripPoints);
     siteMenuComponent.setMenuClickHandler(handleSiteMenuClick);
     render(tripMenuHeaderElement, siteMenuComponent, RenderPosition.AFTEREND);
   })
   .catch(() => {
-    tripPointsModel.setTripPoints(UpdateType.INIT, []);
+    tripPointsModel.set(UpdateType.INIT, []);
     siteMenuComponent.setMenuClickHandler(handleSiteMenuClick);
     render(tripMenuHeaderElement, siteMenuComponent, RenderPosition.AFTEREND);
   });

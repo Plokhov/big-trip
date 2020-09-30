@@ -1,7 +1,7 @@
 import Smart from "../smart.js";
-import TripPointTypeList from "./point-type-list.js";
-import TripPointEditButtons from "./point-edit-buttons.js";
-import TripPointDetails from "./point-details.js";
+import TripPointTypeList from "./trip-point-type-list.js";
+import TripPointEditButtons from "./trip-point-edit-buttons.js";
+import TripPointDetails from "./trip-point-details.js";
 
 import {TRANSFER_TYPES, ACTIVITY_TYPES} from "../../const.js";
 import {formatFullDate} from "../../utils/trip.js";
@@ -32,7 +32,7 @@ const BLANK_TRIP_POINT = {
   isFavorite: false,
 };
 
-export default class TripPointEditView extends Smart {
+export default class TripPointEdit extends Smart {
   constructor(
       tripPoint = BLANK_TRIP_POINT,
       offersModel,
@@ -40,7 +40,7 @@ export default class TripPointEditView extends Smart {
       isNewTripPoint = false
   ) {
     super();
-    this._data = TripPointEditView.parsePointToData(tripPoint);
+    this._data = TripPointEdit.parsePointToData(tripPoint);
     this._offersModel = offersModel;
     this._destinationsModel = destinationsModel;
     this._isNewTripPoint = isNewTripPoint;
@@ -76,13 +76,13 @@ export default class TripPointEditView extends Smart {
       isDeleting
     } = this._data;
 
-    const destinations = this._destinationsModel.getDestinations();
+    const destinations = this._destinationsModel.get();
 
     const tripPointTitle = isTransferType
       ? `${type} to`
       : `${type} in`;
 
-    const buttonName = (deleting, isNewTripPoint) => {
+    const createbuttonName = (deleting, isNewTripPoint) => {
       if (isNewTripPoint) {
         return `Cancel`;
       }
@@ -183,12 +183,12 @@ export default class TripPointEditView extends Smart {
             ${isSaving ? `Saving...` : `Save`}
           </button>
           <button class="event__reset-btn" type="reset" ${isDisabled ? `disabled` : ``}>
-            ${buttonName(isDeleting, this._isNewTripPoint)}
+            ${createbuttonName(isDeleting, this._isNewTripPoint)}
           </button>
 
           ${new TripPointEditButtons(this._data).getTemplate()}
         </header>
-        ${new TripPointDetails(this._offersModel, type, offers, destination).getTemplate()}
+        ${new TripPointDetails(this._offersModel, type, offers, destination, isDisabled).getTemplate()}
       </form>`
     );
   }
@@ -204,7 +204,7 @@ export default class TripPointEditView extends Smart {
 
   reset(tripPoint) {
     this.updateData(
-        TripPointEditView.parsePointToData(tripPoint)
+        TripPointEdit.parsePointToData(tripPoint)
     );
   }
 
@@ -296,7 +296,7 @@ export default class TripPointEditView extends Smart {
   _destinationChangeHandler(evt) {
     evt.preventDefault();
     const newDestination = this._destinationsModel
-      .getDestinations()
+      .get()
       .filter((it) => {
         return it.name === evt.target.value;
       })[0];
@@ -340,7 +340,7 @@ export default class TripPointEditView extends Smart {
     const titleCheckedOffers = Array.from(checkedOffers).map((it) => it.name);
 
     const currentTypeOffers = this._offersModel
-      .getOffers()
+      .get()
       .filter((it) => {
         return it.type === this._data.type;
       })[0].offers;
@@ -360,7 +360,7 @@ export default class TripPointEditView extends Smart {
 
   _formSubmitHandler(evt) {
     evt.preventDefault();
-    this._callback.formSubmit(TripPointEditView.parseDataToPoint(this._data));
+    this._callback.formSubmit(TripPointEdit.parseDataToPoint(this._data));
   }
 
   setFormSubmitHandler(callback) {
@@ -370,7 +370,7 @@ export default class TripPointEditView extends Smart {
 
   _formDeleteClickHandler(evt) {
     evt.preventDefault();
-    this._callback.deleteClick(TripPointEditView.parseDataToPoint(this._data));
+    this._callback.deleteClick(TripPointEdit.parseDataToPoint(this._data));
   }
 
   setDeleteClickHandler(callback) {

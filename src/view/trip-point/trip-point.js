@@ -1,10 +1,10 @@
 import Abstract from "../abstract.js";
 
-import TripPointOffers from "./point-offers.js";
+import TripPointOffers from "./trip-point-offers.js";
 import {TRANSFER_TYPES} from "../../const.js";
 import {formatTime, createDurationtTimeTemplate} from "../../utils/trip.js";
 
-export default class TripPointView extends Abstract {
+export default class TripPoint extends Abstract {
   constructor(tripPoint) {
     super();
     this._tripPoint = tripPoint;
