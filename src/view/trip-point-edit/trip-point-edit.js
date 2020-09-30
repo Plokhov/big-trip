@@ -11,7 +11,7 @@ import flatpickr from "flatpickr";
 import "../../../node_modules/flatpickr/dist/flatpickr.min.css";
 
 const BLANK_TRIP_POINT = {
-  type: `Bus`,
+  type: `bus`,
   dateStart: new Date(),
   dateFinish: new Date(),
   price: 0,
@@ -21,30 +21,26 @@ const BLANK_TRIP_POINT = {
       tip of expansive Lac Léman (Lake Geneva).
       Surrounded by the Alps and Jura mountains,
       the city has views of dramatic Mont Blanc.`,
-    photos: [
-      `img/photos/1.jpg`,
-      `img/photos/2.jpg`,
-      `img/photos/3.jpg`,
-      `img/photos/4.jpg`,
-      `img/photos/5.jpg`
+    pictures: [
+      {
+        src: `img/photos/1.jpg`,
+        description: ``
+      }
     ]
   },
-  options: {
-    type: `Bus`,
-    offers: []
-  },
+  offers: [],
 };
 
 export default class TripPointEditView extends Smart {
   constructor(
       tripPoint = BLANK_TRIP_POINT,
-      optionsModel,
+      offersModel,
       destinationsModel,
-      isNewTripPoint = true
+      isNewTripPoint = false
   ) {
     super();
     this._data = TripPointEditView.parsePointToData(tripPoint);
-    this._optionsModel = optionsModel;
+    this._offersModel = offersModel;
     this._destinationsModel = destinationsModel;
     this._isNewTripPoint = isNewTripPoint;
     this._dateStartDatepicker = null;
@@ -55,7 +51,7 @@ export default class TripPointEditView extends Smart {
     this._dateStartChangeHandler = this._dateStartChangeHandler.bind(this);
     this._dateFinishChangeHandler = this._dateFinishChangeHandler.bind(this);
     this._priceInputHandler = this._priceInputHandler.bind(this);
-    this._optionsChangeHandler = this._optionsChangeHandler.bind(this);
+    this._offersChangeHandler = this._offersChangeHandler.bind(this);
     this._favoriteClickHandler = this._favoriteClickHandler.bind(this);
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
     this._formDeleteClickHandler = this._formDeleteClickHandler.bind(this);
@@ -65,21 +61,6 @@ export default class TripPointEditView extends Smart {
     this._setDateFinishDatepicker();
   }
 
-  removeElement() {
-    super.removeElement();
-
-    if (this._datepicker) {
-      this._datepicker.destroy();
-      this._datepicker = null;
-    }
-  }
-
-  reset(tripPoint) {
-    this.updateData(
-        TripPointEditView.parsePointToData(tripPoint)
-    );
-  }
-
   getTemplate() {
     const {
       type,
@@ -87,7 +68,7 @@ export default class TripPointEditView extends Smart {
       dateFinish,
       price,
       destination,
-      options,
+      offers,
       isTransferType,
     } = this._data;
 
@@ -172,7 +153,7 @@ export default class TripPointEditView extends Smart {
               id="event-price-1"
               type="number"
               name="event-price"
-              value="${price === 0 ? `` : price}"
+              value="${price}"
               required
             >
           </div>
@@ -184,8 +165,23 @@ export default class TripPointEditView extends Smart {
 
           ${new TripPointEditButtons(this._data).getTemplate()}
         </header>
-        ${new TripPointDetails(this._optionsModel, type, options, destination).getTemplate()}
+        ${new TripPointDetails(this._offersModel, type, offers, destination).getTemplate()}
       </form>`
+    );
+  }
+
+  removeElement() {
+    super.removeElement();
+
+    if (this._datepicker) {
+      this._datepicker.destroy();
+      this._datepicker = null;
+    }
+  }
+
+  reset(tripPoint) {
+    this.updateData(
+        TripPointEditView.parsePointToData(tripPoint)
     );
   }
 
@@ -253,7 +249,7 @@ export default class TripPointEditView extends Smart {
     if (this.getElement().querySelectorAll(`.event__offer-selector`).length !== 0) {
       this.getElement()
         .querySelector(`.event__available-offers`)
-        .addEventListener(`change`, this._optionsChangeHandler);
+        .addEventListener(`change`, this._offersChangeHandler);
     }
   }
 
@@ -315,33 +311,27 @@ export default class TripPointEditView extends Smart {
     });
   }
 
-  _optionsChangeHandler(evt) {
+  _offersChangeHandler(evt) {
     evt.preventDefault();
     const checkedOffers = document.querySelectorAll(`.event__offer-checkbox:checked`);
     const titleCheckedOffers = Array.from(checkedOffers).map((it) => it.name);
 
-    const currentOptions = this._optionsModel
-      .getOptions()
+    const currentTypeOffers = this._offersModel
+      .getOffers()
       .filter((it) => {
         return it.type === this._data.type;
-      })[0];
+      })[0].offers;
 
     const newOffers = [];
 
     titleCheckedOffers.forEach((title) => {
-      newOffers.push(currentOptions.offers.filter((it) => {
+      newOffers.push(currentTypeOffers.filter((it) => {
         return it.title === title;
       })[0]);
     });
 
     this.updateData({
-      options: Object.assign(
-          {},
-          this._data.options,
-          {
-            type: this._data.options.type,
-            offers: newOffers,
-          }),
+      offers: newOffers,
     });
   }
 

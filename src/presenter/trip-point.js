@@ -15,14 +15,14 @@ export default class TripPoint {
       currentSortType,
       changeData,
       changeMode,
-      optionsModel,
+      offersModel,
       destinationsModel
   ) {
     this._tripPointListContainer = tripPointListContainer;
     this._currentSortType = currentSortType;
     this._changeData = changeData;
     this._changeMode = changeMode;
-    this._optionsModel = optionsModel;
+    this._offersModel = offersModel;
     this._destinationsModel = destinationsModel;
 
     this._tripPointComponent = null;
@@ -44,9 +44,8 @@ export default class TripPoint {
     this._tripPointComponent = new TripPointView(tripPoint);
     this._tripPointEditComponent = new TripPointEditView(
         tripPoint,
-        this._optionsModel,
-        this._destinationsModel,
-        false
+        this._offersModel,
+        this._destinationsModel
     );
 
     this._tripPointComponent.setRollupBtnClickHandler(this._handleRollupBtnClick);

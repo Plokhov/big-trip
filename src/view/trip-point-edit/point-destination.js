@@ -4,7 +4,7 @@ export default class TripPointDestination {
   }
 
   getTemplate() {
-    const {description, photos} = this._destination;
+    const {description, pictures} = this._destination;
 
     return (
       `<section class="event__section  event__section--destination">
@@ -15,8 +15,8 @@ export default class TripPointDestination {
 
         <div class="event__photos-container">
           <div class="event__photos-tape">
-            ${photos.map((photo) => {
-        return `<img class="event__photo" src="${photo}" alt="Event photo"></img>`;
+            ${pictures.map((picture) => {
+        return `<img class="event__photo" src="${picture.src}" alt="Event photo"></img>`;
       }).join(``)}
 
           </div>

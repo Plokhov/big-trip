@@ -2,6 +2,7 @@ import TripPointPresenter from "./trip-point.js";
 import TripPointNewPresenter from "./trip-point-new.js";
 
 import SortView from "../view/sort.js";
+import LoadingView from "../view/loading.js";
 import NoTripPointsView from "../view/no-trip-points.js";
 import TripDaysListView from "../view/trip-days-list.js";
 import TripDayView from "../view/trip-day.js";
@@ -13,18 +14,21 @@ import {filter} from "../utils/filter.js";
 import {SortType, UpdateType, UserAction, FilterType} from "../const.js";
 
 export default class Trip {
-  constructor(tripEventsContainer, tripPointsModel, filterModel, optionsModel, destinationsModel) {
+  constructor(tripEventsContainer, tripPointsModel, filterModel, offersModel, destinationsModel, api) {
     this._tripEventsContainer = tripEventsContainer;
     this._tripPointsModel = tripPointsModel;
     this._filterModel = filterModel;
-    this._optionsModel = optionsModel;
+    this._offersModel = offersModel;
     this._destinationsModel = destinationsModel;
+    this._api = api;
 
     this._currentSortType = SortType.EVENT;
     this._tripPointPresenter = {};
     this._tripDaysComponents = [];
     this._sortComponent = null;
+    this._isLoading = true;
 
+    this._loadingComponent = new LoadingView();
     this._noTripPointsComponent = new NoTripPointsView();
     this._tripDaysListComponent = new TripDaysListView();
 
@@ -39,18 +43,6 @@ export default class Trip {
     this._filterModel.addObserver(this._handleModelEvent);
 
     this._renderTrip();
-  }
-
-  createTripPoint() {
-    this._currentSortType = SortType.EVENT;
-    this._filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
-    this._tripPointNewPresenter = new TripPointNewPresenter(
-        this._tripDaysListComponent.getElement(),
-        this._handleViewAction,
-        this._optionsModel,
-        this._destinationsModel
-    );
-    this._tripPointNewPresenter.init();
   }
 
   _getTripPoints() {
@@ -81,7 +73,10 @@ export default class Trip {
   _handleViewAction(actionType, updateType, update) {
     switch (actionType) {
       case UserAction.UPDATE_TRIP_POINT:
-        this._tripPointsModel.updateTripPoint(updateType, update);
+        this._api.updateTripPoint(update)
+          .then((response) => {
+            this._tripPointsModel.updateTripPoint(updateType, response);
+          });
         break;
       case UserAction.ADD_TRIP_POINT:
         this._tripPointsModel.addTripPoint(updateType, update);
@@ -105,11 +100,24 @@ export default class Trip {
         this._clearTrip({resetSortType: true});
         this._renderTrip();
         break;
+      case UpdateType.INIT:
+        this._isLoading = false;
+        remove(this._loadingComponent);
+        this._renderTrip();
+        break;
     }
   }
 
   _renderTrip() {
-    if (this._getTripPoints().length === 0) {
+    if (this._isLoading) {
+      this._renderLoading();
+      return;
+    }
+
+    const tripPoints = this._getTripPoints();
+    const tripPointsCount = tripPoints.length;
+
+    if (tripPointsCount === 0) {
       this._renderNoTripPoints();
       return;
     }
@@ -136,12 +144,21 @@ export default class Trip {
 
     this._tripDaysComponents = [];
 
+    remove(this._loadingComponent);
     remove(this._noTripPointsComponent);
     remove(this._sortComponent);
+
+    if (this._tripPointNewPresenter) {
+      this._tripPointNewPresenter.destroy();
+    }
 
     if (resetSortType) {
       this._currentSortType = SortType.EVENT;
     }
+  }
+
+  _renderLoading() {
+    render(this._tripEventsContainer, this._loadingComponent, RenderPosition.BEFOREEND);
   }
 
   _renderNoTripPoints() {
@@ -211,10 +228,22 @@ export default class Trip {
         this._currentSortType,
         this._handleViewAction,
         this._handleModeChange,
-        this._optionsModel,
+        this._offersModel,
         this._destinationsModel
     );
     tripPointPresenter.init(tripPoint);
     this._tripPointPresenter[tripPoint.id] = tripPointPresenter;
+  }
+
+  createTripPoint() {
+    this._currentSortType = SortType.EVENT;
+    this._filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
+    this._tripPointNewPresenter = new TripPointNewPresenter(
+        this._tripDaysListComponent.getElement(),
+        this._handleViewAction,
+        this._offersModel,
+        this._destinationsModel
+    );
+    this._tripPointNewPresenter.init();
   }
 }
