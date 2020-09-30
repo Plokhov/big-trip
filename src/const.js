@@ -1,5 +1,5 @@
-export const TRANSFER_TYPES = [`Taxi`, `Bus`, `Train`, `Ship`, `Transport`, `Drive`];
-export const ACTIVITY_TYPES = [`Check-in`, `Sightseeing`, `Restaurant`];
+export const TRANSFER_TYPES = [`taxi`, `bus`, `train`, `ship`, `transport`, `drive`];
+export const ACTIVITY_TYPES = [`check-in`, `sightseeing`, `restaurant`];
 
 export const SortType = {
   EVENT: `event`,
@@ -16,7 +16,8 @@ export const UserAction = {
 export const UpdateType = {
   PATCH: `PATCH`,
   MINOR: `MINOR`,
-  MAJOR: `MAJOR`
+  MAJOR: `MAJOR`,
+  INIT: `INIT`
 };
 
 export const FilterType = {

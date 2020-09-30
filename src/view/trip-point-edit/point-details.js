@@ -2,16 +2,16 @@ import TripPointOffers from "./point-offers";
 import TripPointDestination from "./point-destination.js";
 
 export default class TripPointsDetails {
-  constructor(optionsModel, type, options, destination) {
-    this._optionsModel = optionsModel;
+  constructor(offersModel, type, offers, destination) {
+    this._offersModel = offersModel;
     this._type = type;
-    this._options = options;
+    this._offers = offers;
     this._destination = destination;
   }
 
   getTemplate() {
-    const currentTypeOptions = this._optionsModel
-      .getOptions()
+    const currentTypeAllOffers = this._offersModel
+      .getOffers()
       .filter((it) => {
         return it.type === this._type;
       })[0];
@@ -20,17 +20,14 @@ export default class TripPointsDetails {
       ? new TripPointDestination(this._destination).getTemplate()
       : ``;
 
-    if (currentTypeOptions.offers.length === 0) {
-      return (
-        `<section class="event__details">
-          ${new TripPointDestination(this._destination).getTemplate()}
-        </section>`
-      );
-    }
+    const offersTemplate = currentTypeAllOffers
+      ? new TripPointOffers(this._type, this._offers, this._offersModel).getTemplate()
+      : ``;
+
 
     return (
       `<section class="event__details">
-        ${new TripPointOffers(this._options, this._optionsModel).getTemplate()}
+        ${offersTemplate}
 
         ${destinationTemplate}
       </section>`

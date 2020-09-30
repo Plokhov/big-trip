@@ -19,15 +19,15 @@ export default class TripPointView extends Abstract {
       dateFinish,
       destination,
       price,
-      options
+      offers
     } = this._tripPoint;
 
     const tripPointTitle = TRANSFER_TYPES.includes(type, 0)
       ? `${type} to`
       : `${type} in`;
 
-    const optionsTemplate = options
-      ? new TripPointOffers(options.offers.slice(0, 3)).getTemplate()
+    const offersTemplate = offers
+      ? new TripPointOffers(offers.slice(0, 3)).getTemplate()
       : ``;
 
     return (
@@ -57,7 +57,7 @@ export default class TripPointView extends Abstract {
 
           <h4 class="visually-hidden">Offers:</h4>
           <ul class="event__selected-offers">
-            ${optionsTemplate}
+            ${offersTemplate}
           </ul>
 
           <button class="event__rollup-btn" type="button">

@@ -6,8 +6,10 @@ export default class TripPoints extends Observer {
     this._tripPoints = [];
   }
 
-  setTripPoints(tripPoints) {
+  setTripPoints(updateType, tripPoints) {
     this._tripPoints = tripPoints.slice();
+
+    this._notify(updateType);
   }
 
   getTripPoints() {
@@ -52,5 +54,47 @@ export default class TripPoints extends Observer {
     ];
 
     this._notify(updateType);
+  }
+
+  static adaptToClient(tripPoint) {
+    const adaptedTripPoint = Object.assign(
+        {},
+        tripPoint,
+        {
+          dateStart: tripPoint.date_from !== null ? new Date(tripPoint.date_from) : tripPoint.date_from,
+          dateFinish: tripPoint.date_to !== null ? new Date(tripPoint.date_to) : tripPoint.date_to,
+          city: tripPoint.city,
+          price: tripPoint.base_price,
+          isFavorite: tripPoint.is_favorite,
+        }
+    );
+
+    delete adaptedTripPoint.date_from;
+    delete adaptedTripPoint.date_to;
+    delete adaptedTripPoint.is_favorite;
+    delete adaptedTripPoint.base_price;
+
+    return adaptedTripPoint;
+  }
+
+  static adaptToServer(tripPoint) {
+    const adaptedTripPoint = Object.assign(
+        {},
+        tripPoint,
+        {
+          "date_from": tripPoint.dateStart instanceof Date ? tripPoint.dateStart.toISOString() : null,
+          "date_to": tripPoint.dateFinish instanceof Date ? tripPoint.dateFinish.toISOString() : null,
+          "city": tripPoint.destination.name,
+          "base_price": tripPoint.price,
+          "is_favorite": tripPoint.isFavorite
+        }
+    );
+
+    delete adaptedTripPoint.dateStart;
+    delete adaptedTripPoint.dateFinish;
+    delete adaptedTripPoint.price;
+    delete adaptedTripPoint.isFavorite;
+
+    return adaptedTripPoint;
   }
 }
