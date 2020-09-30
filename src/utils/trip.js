@@ -5,7 +5,7 @@ export const formatTime = (date) => {
     return ``;
   }
 
-  return moment(date).format(`hh:mm`);
+  return moment(date).format(`HH:mm`);
 };
 
 export const formatFullDate = (date) => {

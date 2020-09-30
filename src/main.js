@@ -6,11 +6,8 @@ import DestinationsModel from "./model/destinations.js";
 import TripPresenter from "./presenter/trip.js";
 import FilterPresenter from "./presenter/filter.js";
 
-// import SiteInfoView from "./view/site-info.js";
 import SiteMenuView from "./view/site-menu.js";
 import StatisticsView from "./view/statistics.js";
-
-// import {generateItinerary} from "./mock/itinerary.js";
 
 import {RenderPosition, render, remove} from "./utils/render.js";
 import {MenuItem, UpdateType} from "./const.js";
@@ -20,7 +17,6 @@ import Api from "./api.js";
 const AUTHORIZATION = `Basic er883jdzbdw`;
 const END_POINT = `https://12.ecmascript.pages.academy/big-trip`;
 
-// const itinerary = generateItinerary(tripPoints);
 const tripMainElement = document.querySelector(`.trip-main`);
 const tripControlsElement = tripMainElement.querySelector(`.trip-controls`);
 const tripMenuHeaderElement = tripControlsElement.querySelector(`h2:first-child`);
@@ -64,7 +60,6 @@ const handleSiteMenuClick = (menuItem) => {
   }
 };
 
-// render(tripMainElement, new SiteInfoView(itinerary), RenderPosition.AFTERBEGIN);
 filterPresenter.init();
 tripPresenter.init();
 
