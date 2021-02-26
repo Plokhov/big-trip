@@ -1,6 +1,5 @@
 import Abstract from "./abstract.js";
 
-
 export default class Filter extends Abstract {
   constructor(filters, currentFilterType) {
     super();
